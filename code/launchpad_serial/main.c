@@ -255,7 +255,7 @@ int main(void)
     // setup timers
     TA0CCTL0 = OUTMOD_3 | CCIE;
     TA0CCR0 = 256;
-    TA0CTL = TASSEL_2 | MC_1;
+    TA0CTL = TASSEL_2 | MC_1;       // SMCLK | Up mode
 
     init_dc();
 
@@ -291,6 +291,9 @@ interrupt (TIMER0_A0_VECTOR) Timer_A(void)
 
     // enable the GS counter
     P1OUT &= ~BLANK;
+
+    // reset the timer since it's been running during the ISR
+    TA0CTL |= TACLR;
 }
 
 // UART RX ISR
