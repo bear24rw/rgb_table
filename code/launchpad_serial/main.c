@@ -12,9 +12,9 @@
 #define VPRG    BIT3
 #define GSCLK   BIT4
 
-#define RED 0
-#define GRN 1
-#define BLU 2
+#define RED     0
+#define GRN     1
+#define BLU     2
 
 #define NUM_LEDS (8*16*3)
 
@@ -43,18 +43,18 @@ static inline void init_table()
         else if (i < (7*16*3) ) {r = 255; g = 255; b = 255;}
         else if (i < (8*16*3) ) {r = 255; g = 255; b = 255;}
 
-        table[i+RED] = (unsigned char)r;
-        table[i+GRN] = (unsigned char)g;
-        table[i+BLU] = (unsigned char)b;
+        table[i+RED] = r;
+        table[i+GRN] = g;
+        table[i+BLU] = b;
     }
 }
 
 static inline void init_dc()
 {
-    // enter DC Data Input Mode
+    // enter DC data input mode
     P1OUT |= VPRG;
 
-    // set everything to 100%
+    // set everything to 0xFF
     P2OUT |= SIN;
     
     // DC register is 96 bits, we have 8 chips, extra 5 just in case
@@ -63,6 +63,7 @@ static inline void init_dc()
         P2OUT |= SCLK;
         P2OUT &= ~SCLK;
     }
+
     P2OUT &= ~SIN;
 
     // latch in the data
