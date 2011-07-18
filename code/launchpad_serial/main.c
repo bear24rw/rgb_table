@@ -19,11 +19,11 @@
 #define NUM_LEDS (8*16*3)
 
 // [R0, G0, B0, R1, G1, B1, R2, G2, ...]
-unsigned char table[NUM_LEDS];
+volatile unsigned char table[NUM_LEDS];
 
-unsigned char color = RED;
+volatile unsigned char color = RED;
 
-unsigned char need_xlat = 0;
+volatile unsigned char need_xlat = 0;
 unsigned char need_extra_sclk = 0;
 
 int i;
