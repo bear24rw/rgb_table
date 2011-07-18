@@ -37,34 +37,14 @@ void init_table()
 {
     for (row=0; row<8; row++)
     {
-        if (row == 0 )
-        {
-            r = 200; g = 0; b = 0;
-        }
-        if (row == 1 )
-        {
-            r = 0; g = 200; b = 0;
-        }
-        if (row == 2 )
-        {
-            r = 0; g = 0; b = 200;
-        }
-        if (row == 3 )
-        {
-            r = 200; g = 200; b = 0;
-        }
-        if (row == 4 )
-        {
-            r = 200; g = 0; b = 200;
-        }
-        if (row == 5 )
-        {
-            r = 0; g = 200; b = 200;
-        }
-        if (row == 6 || row == 7)
-        {
-            r = 200; g = 200; b = 200;
-        }
+        if (row == 0 ) r = 200; g = 000; b = 000;
+        if (row == 1 ) r = 000; g = 200; b = 000;
+        if (row == 2 ) r = 000; g = 000; b = 200;
+        if (row == 3 ) r = 200; g = 200; b = 000;
+        if (row == 4 ) r = 200; g = 000; b = 200;
+        if (row == 5 ) r = 000; g = 200; b = 200;
+        if (row == 6 ) r = 200; g = 200; b = 200;
+        if (row == 7 ) r = 200; g = 200; b = 200;
 
         for (col=0; col<16; col++)
         {
@@ -81,8 +61,10 @@ void init_dc()
     P1OUT |= VPRG;
 
     // set everything to 100%
-    int i;
     P2OUT |= SIN;
+    
+    // DC register is 96 bits, we have 8 chips, extra 5 just in case
+    int i;
     for (i=0; i<(96*8+5); i++)
     {
         P2OUT |= SCLK;
@@ -96,7 +78,6 @@ void init_dc()
 
     // switch back to GS mode
     P1OUT &= ~VPRG;
-
 }
 
 void next_color()
@@ -326,5 +307,4 @@ interrupt (USCIAB0RX_VECTOR) spi_rx(void)
     // loopback
     while (!(IFG2 & UCB0TXIFG));    // wait for TX buffer to be reading
     UCB0TXBUF = data;
-
 }
