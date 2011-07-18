@@ -200,7 +200,6 @@ int main(void)
 
     BCSCTL1 = CALBC1_12MHZ;
     DCOCTL = CALDCO_12MHZ;
-    //BCSCTL3 |= LFXT1S_2;
 
     //
     // UART
