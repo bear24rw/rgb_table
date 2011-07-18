@@ -111,7 +111,7 @@ static inline void fets_off()
     P2OUT |= BLU_FET;
 }
 
-static inline void send_data()
+static inline void refresh_table()
 {
 
     // if were waiting for a latch dont update again
@@ -126,8 +126,11 @@ static inline void send_data()
         else
             need_extra_sclk = 1;
 
+        // shift in all the values for the current color
         for (i=0; i<NUM_LEDS; i+=3)
         {
+            // unrolled loops for speed
+
             // 4 pad bits
             P2OUT &= ~SIN;
 
@@ -185,6 +188,7 @@ static inline void send_data()
             P2OUT &= ~SCLK;
         }
 
+        // we just updated the shift registers, we need a latch
         need_xlat = 1;
     }
 }
@@ -232,7 +236,7 @@ int main(void)
     // TLC5941
     //
 
-    // set as outputs
+    // all control lines are outputs
     P2DIR |= XLAT;
     P2DIR |= SIN;
     P2DIR |= SCLK;
@@ -240,10 +244,10 @@ int main(void)
     P1DIR |= VPRG;
     P1DIR |= GSCLK;
 
-    // SMCLK
+    // GSCLK = SMCLK
     P1SEL |= GSCLK;
 
-    // set to 0
+    // set all control lines to 0
     P2OUT &= ~XLAT;
     P2OUT &= ~SIN;
     P2OUT &= ~SCLK;
@@ -256,15 +260,18 @@ int main(void)
     TA0CCR0 = 256;
     TA0CTL = TASSEL_2 | MC_1;       // SMCLK | Up mode
 
+    // initialize the DC values in all the TLC5941s
     init_dc();
 
+    // enable interrupts
     _EINT();
 
+    // initialize the table array
     init_table();
 
     while(1) 
     {
-       send_data();
+       refresh_table();
     }
 
     return 0;
