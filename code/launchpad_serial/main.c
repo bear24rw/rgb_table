@@ -16,38 +16,36 @@
 #define GRN 1
 #define BLU 2
 
-unsigned char table[8][16][3];
+#define NUM_LEDS (8*16*3)
 
-unsigned char state = 0;
-unsigned char col,row;
-unsigned char bit;
+// [R0, G0, B0, R1, G1, B1, R2, G2, ...]
+unsigned char table[NUM_LEDS];
 
 unsigned char color = RED;
 
 unsigned char need_xlat = 0;
 unsigned char need_extra_sclk = 0;
 
-unsigned char r,g,b;
+int i;
 
 void init_table()
 {
-    for (row=0; row<8; row++)
-    {
-        if (row == 0 ) r = 200; g = 000; b = 000;
-        if (row == 1 ) r = 000; g = 200; b = 000;
-        if (row == 2 ) r = 000; g = 000; b = 200;
-        if (row == 3 ) r = 200; g = 200; b = 000;
-        if (row == 4 ) r = 200; g = 000; b = 200;
-        if (row == 5 ) r = 000; g = 200; b = 200;
-        if (row == 6 ) r = 200; g = 200; b = 200;
-        if (row == 7 ) r = 200; g = 200; b = 200;
+    unsigned char r,g,b;
 
-        for (col=0; col<16; col++)
-        {
-            table[row][col][RED] = (unsigned char)r;
-            table[row][col][GRN] = (unsigned char)g;
-            table[row][col][BLU] = (unsigned char)b;
-        }
+    for (i=0; i<NUM_LEDS; i+=3)
+    {
+        if (i < (1*16*3) ) {r = 255; g = 000; b = 000;}
+        else if (i < (2*16*3) ) {r = 000; g = 255; b = 000;}
+        else if (i < (3*16*3) ) {r = 000; g = 000; b = 255;}
+        else if (i < (4*16*3) ) {r = 255; g = 255; b = 000;}
+        else if (i < (5*16*3) ) {r = 255; g = 000; b = 255;}
+        else if (i < (6*16*3) ) {r = 000; g = 255; b = 255;}
+        else if (i < (7*16*3) ) {r = 255; g = 255; b = 255;}
+        else if (i < (8*16*3) ) {r = 255; g = 255; b = 255;}
+
+        table[i+RED] = (unsigned char)r;
+        table[i+GRN] = (unsigned char)g;
+        table[i+BLU] = (unsigned char)b;
     }
 }
 
@@ -60,7 +58,6 @@ void init_dc()
     P2OUT |= SIN;
     
     // DC register is 96 bits, we have 8 chips, extra 5 just in case
-    int i;
     for (i=0; i<(96*8+5); i++)
     {
         P2OUT |= SCLK;
@@ -129,66 +126,63 @@ void send_data()
         else
             need_extra_sclk = 1;
 
-        for (row=0; row<8; row++)
+        for (i=0; i<NUM_LEDS; i+=3)
         {
-            for (col=0; col<16; col++)
-            {
-                // 4 pad bits
-                P2OUT &= ~SIN;
+            // 4 pad bits
+            P2OUT &= ~SIN;
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                // 8 data bits
-                if (table[row][col][color] & (1 << 7)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            // 8 data bits
+            if (table[i+color] & (1 << 7)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 6)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 6)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 5)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 5)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 4)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 4)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 3)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 3)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 2)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 2)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 1)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 1)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
 
-                if (table[row][col][color] & (1 << 0)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
+            if (table[i+color] & (1 << 0)) { P2OUT |= SIN; } else { P2OUT &= ~SIN; }
 
-                P2OUT |= SCLK;
-                P2OUT &= ~SCLK;
-            }
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
         }
 
         need_xlat = 1;
@@ -200,19 +194,44 @@ int main(void)
 
     WDTCTL = WDTPW + WDTHOLD;   // Stop WDT
 
+    //
+    // clock
+    //
+
     BCSCTL1 = CALBC1_12MHZ;
     DCOCTL = CALDCO_12MHZ;
     //BCSCTL3 |= LFXT1S_2;
 
-    // FETS
+    //
+    // UART
+    //
     
+    // http://www.daycounter.com/Calculators/MSP430-Uart-Calculator.phtml
+
+    P1SEL |= (BIT1 | BIT1);     // P1.2 / P1.1 = TX / RX
+    P1DIR |= BIT2;
+    P1DIR &= ~BIT1;
+
+    UCA0CTL1 |= UCSSEL_2;       // SMCLK
+    UCA0BR0 = 0x18;             // 12MHz 500000 baud
+    UCA0BR1 = 0x00;             // 12MHz 500000 baud
+    UCA0MCTL = 0x00;            // 12Mhz 500000 baud
+    UCA0CTL1 &= ~UCSWRST;       // initialize USCI state machine
+    IE2 |= UCA0RXIE;            // enable USCI_A0 RX interrupt
+
+    //
+    // FETS
+    //
+
     P2DIR |= RED_FET;
     P2DIR |= GRN_FET;
     P2DIR |= BLU_FET;
 
     fets_off();
     
+    //
     // TLC5941
+    //
 
     // set as outputs
     P2DIR |= XLAT;
@@ -272,4 +291,30 @@ interrupt (TIMER0_A0_VECTOR) Timer_A(void)
 
     // enable the GS counter
     P1OUT &= ~BLANK;
+}
+
+// UART RX ISR
+interrupt (USCIAB0RX_VECTOR) uart_rx(void)
+{
+    static unsigned int rx_pointer = 0;
+    static unsigned char rx_byte = 0;
+
+    rx_byte = UCA0RXBUF;
+
+    // check if we recieved a start byte
+    if (rx_byte == 0xFF)
+    {
+        rx_pointer = 0;
+    }
+    else
+    {
+        table[rx_pointer] = UCA0RXBUF; 
+        rx_pointer++;
+
+        // sanity check, we should never hit end of the array
+        if (rx_pointer == NUM_LEDS)
+        {
+            rx_pointer = 0;
+        }
+    }
 }
