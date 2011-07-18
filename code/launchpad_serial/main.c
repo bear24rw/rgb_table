@@ -12,10 +12,6 @@
 #define VPRG    BIT3
 #define GSCLK   BIT4
 
-#define SPI_CLK     BIT5
-#define SPI_SOMI    BIT6
-#define SPI_SIMO    BIT7
-
 #define RED 0
 #define GRN 1
 #define BLU 2
@@ -208,27 +204,6 @@ int main(void)
     DCOCTL = CALDCO_12MHZ;
     //BCSCTL3 |= LFXT1S_2;
 
-    // SPI
-
-    P1SEL |= SPI_CLK;
-    P1SEL |= SPI_SOMI;
-    P1SEL |= SPI_SIMO;
-
-    P1SEL2 |= SPI_CLK;
-    P1SEL2 |= SPI_SOMI;
-    P1SEL2 |= SPI_SIMO;
-
-    P1DIR |= SPI_CLK;
-    P1DIR |= SPI_SOMI;
-    P1DIR &= ~SPI_SIMO;
-
-    UCB0CTL1 = UCSWRST;     // put state machine in reset
-    UCB0CTL0 |= UCMSB;      // MSB first
-    UCB0CTL0 |= UCSYNC;     // syncronous mode
-    UCB0CTL1 &= UCSWRST;    // take out of reset
-
-    IE2 |= UCB0RXIE;        // enable RX interrupt
-
     // FETS
     
     P2DIR |= RED_FET;
@@ -297,14 +272,4 @@ interrupt (TIMER0_A0_VECTOR) Timer_A(void)
 
     // enable the GS counter
     P1OUT &= ~BLANK;
-}
-
-// SPI RX
-interrupt (USCIAB0RX_VECTOR) spi_rx(void)
-{
-    unsigned char data = UCB0RXBUF;
-
-    // loopback
-    while (!(IFG2 & UCB0TXIFG));    // wait for TX buffer to be reading
-    UCB0TXBUF = data;
 }
