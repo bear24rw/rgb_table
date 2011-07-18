@@ -73,7 +73,7 @@ void init_dc()
     P1OUT &= ~VPRG;
 }
 
-void next_color()
+static inline void next_color()
 {
     switch (color)
     {
