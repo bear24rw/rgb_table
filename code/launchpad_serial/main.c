@@ -26,7 +26,7 @@ volatile unsigned char color = RED;
 volatile unsigned char need_xlat = 0;
 unsigned char need_extra_sclk = 0;
 
-int i;
+unsigned int i;
 
 void init_table()
 {
