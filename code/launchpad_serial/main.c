@@ -28,7 +28,7 @@ unsigned char need_extra_sclk = 0;
 
 unsigned int i;
 
-void init_table()
+static inline void init_table()
 {
     unsigned char r,g,b;
 
@@ -49,7 +49,7 @@ void init_table()
     }
 }
 
-void init_dc()
+static inline void init_dc()
 {
     // enter DC Data Input Mode
     P1OUT |= VPRG;
@@ -104,14 +104,14 @@ static inline void next_color()
     }
 }
 
-void fets_off()
+static inline void fets_off()
 {
     P2OUT |= RED_FET;
     P2OUT |= GRN_FET;
     P2OUT |= BLU_FET;
 }
 
-void send_data()
+static inline void send_data()
 {
 
     // if were waiting for a latch dont update again
@@ -270,8 +270,6 @@ int main(void)
 
     return 0;
 }
-
-unsigned char blank_count = 0;
 
 // BLANK ISR
 interrupt (TIMER0_A0_VECTOR) Timer_A(void)
