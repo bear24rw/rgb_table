@@ -165,7 +165,7 @@ void assign_lights( void )
         //fft_bin_pulse[i] = fft_bin_triggered[i];
     }
 
-    printf("pulse_count: %d\n", pulse_count);
+    //printf("pulse_count: %d\n", pulse_count);
 
 
     // go through groups of pulses and map them to lights
