@@ -5,7 +5,7 @@
 #include <GL/glu.h>
 #include <SDL.h>
 
-#define SCREEN_BPP		16
+#define SCREEN_BPP 16
 
 extern unsigned char done;
 

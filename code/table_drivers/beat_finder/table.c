@@ -118,10 +118,10 @@ void draw_table_bg(void)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
         {
-			float r = (255*fft_bin[i].hist[y+(HIST_SIZE-TABLE_HEIGHT)])/fft_global_hist_mag_max;
-			float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
-			float g = 0;
-			
+            float r = (255*fft_bin[i].hist[y+(HIST_SIZE-TABLE_HEIGHT)])/fft_global_hist_mag_max;
+            float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
+            float g = 0;
+            
             // if this was a beat, color it white
             //if (fft_bin_triggered_hist[x][y+(HIST_SIZE-TABLE_HEIGHT)]) {r = 255; g = 255; b = 255;}
 

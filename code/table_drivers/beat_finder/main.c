@@ -20,34 +20,23 @@ unsigned char use_serial = TRUE;
 
 int serial_file;
 
-double  clip_mag		=		0;			// dynamic magnitude clip
-double	clip_mag_decay	=		0;			// dynamio clip decreases at rate of some function, this indexes the function
-char	clipped 		=	 	0;			// 1 = we clipped a bin this loop
+double clip_mag = 0;        // dynamic magnitude clip
+doubleclip_mag_decay = 0;   // dynamio clip decreases at rate of some function, this indexes the function
+charclipped = 0;            // 1 = we clipped a bin this loop
 
-//Mag: 0.170000 Var: 0.220000
+// Mag: 0.170000 Var: 0.220000
 // default trigger levels for detecting beats
-double MAG_TRIGGER	=	.58; //.36
-double VAR_TRIGGER	=	.54; //.36
+double MAG_TRIGGER=    .58; //.36
+double VAR_TRIGGER=    .54; //.36
 
 struct bin fft_bin[FFT_NUM_BINS];
 
 double fft_global_mag_avg;
 double fft_global_mag_max;
-double fft_global_hist_mag_avg;				// average of all the bin history averages
-double fft_global_hist_mag_max;				// max value of global history
-double fft_global_hist_std_avg;				// avg of all the std deviations
-double fft_global_hist_std_max;				// max of all the std deviations
-
-
-//double fft_bin[FFT_NUM_BINS];
-//double fft_bin_last[FFT_NUM_BINS];
-//double fft_bin_diff[FFT_NUM_BINS];
-//double fft_bin_hist[FFT_NUM_BINS][HIST_SIZE];
-//double fft_bin_hist_avg[FFT_NUM_BINS];		// bin history average
-//double fft_bin_hist_std[FFT_NUM_BINS];		// avg of the sum of the difference in energy from average
-//char fft_bin_triggered[FFT_NUM_BINS];
-//char fft_bin_triggered_hist[FFT_NUM_BINS][HIST_SIZE];
-//char fft_bin_pulse[FFT_NUM_BINS];
+double fft_global_hist_mag_avg;     // average of all the bin history averages
+double fft_global_hist_mag_max;     // max value of global history
+double fft_global_hist_std_avg;     // avg of all the std deviations
+double fft_global_hist_std_max;     // max of all the std deviations
 
 struct light lights[NUM_LIGHTS];
 
@@ -114,50 +103,50 @@ void hsv_to_rgb( int h, int s, int v, int *r, int *g, int *b )
 
 int init_serial( void )
 {
-	serial_file = open(SERIAL_DEV, O_RDWR | O_NOCTTY | O_NDELAY);
-	if (serial_file == -1)
-	{
-		printf("Could not open serial port\n");
-		return 1;
-	}
+    serial_file = open(SERIAL_DEV, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (serial_file == -1)
+    {
+        printf("Could not open serial port\n");
+        return 1;
+    }
 
-	fcntl(serial_file, F_SETFL, 0);
+    fcntl(serial_file, F_SETFL, 0);
 
-	struct termios options;
+    struct termios options;
 
-	tcgetattr(serial_file, &options);
+    tcgetattr(serial_file, &options);
 
-	cfsetispeed(&options, SERIAL_BAUD);
-	cfsetospeed(&options, SERIAL_BAUD);
-	options.c_cflag |= (CLOCAL | CREAD);
+    cfsetispeed(&options, SERIAL_BAUD);
+    cfsetospeed(&options, SERIAL_BAUD);
+    options.c_cflag |= (CLOCAL | CREAD);
 
-	tcsetattr(serial_file, TCSANOW, &options);
+    tcsetattr(serial_file, TCSANOW, &options);
 
-	return 0;
+    return 0;
 }
 
 int send_serial( void )
 {
-	unsigned char data = 0;
+    unsigned char data = 0;
 
-	if (lights[0].state) data += 1;
-	if (lights[2].state) data += 2;
-	if (lights[4].state) data += 4;
-	if (lights[6].state) data += 8;
+    if (lights[0].state) data += 1;
+    if (lights[2].state) data += 2;
+    if (lights[4].state) data += 4;
+    if (lights[6].state) data += 8;
 
-	if (lights[1].state) data += 16;
-	if (lights[3].state) data += 32;
-	if (lights[5].state) data += 64;
-	if (lights[7].state) data += 128;
+    if (lights[1].state) data += 16;
+    if (lights[3].state) data += 32;
+    if (lights[5].state) data += 64;
+    if (lights[7].state) data += 128;
 
-	int n = write(serial_file, &data, 1);
-	if (n < 0)
-	{
-		printf("write() failed!\n");
-		return FALSE;	
-	}
-	
-	return TRUE;
+    int n = write(serial_file, &data, 1);
+    if (n < 0)
+    {
+        printf("write() failed!\n");
+        return FALSE;    
+    }
+
+    return TRUE;
 }
 
 void init_lights(void)
@@ -172,83 +161,83 @@ void init_lights(void)
 
 void detect_beats( void )
 {
-	for (int i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// shift trigger history down
-		for (int k=1; k < HIST_SIZE; k++)
-		{
-			fft_bin[i].trigger_hist[k-1] = fft_bin[i].trigger_hist[k];
-		}
+    for (int i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // shift trigger history down
+        for (int k=1; k < HIST_SIZE; k++)
+        {
+            fft_bin[i].trigger_hist[k-1] = fft_bin[i].trigger_hist[k];
+        }
 
-		// see if we detect a beat
-		if (fft_bin[i].mag/fft_global_mag_max > MAG_TRIGGER && fft_bin[i].hist_std/fft_global_hist_std_max > VAR_TRIGGER)
-			fft_bin[i].triggered = 1;
-		else
-			fft_bin[i].triggered = 0;
-		
-		// if this bin is decreasing from last time it is no longer a beat
-		//if (fft_bin_diff[i] <= 0)
-		//	fft_bin_triggered[i] = 0;
+        // see if we detect a beat
+        if (fft_bin[i].mag/fft_global_mag_max > MAG_TRIGGER && fft_bin[i].hist_std/fft_global_hist_std_max > VAR_TRIGGER)
+            fft_bin[i].triggered = 1;
+        else
+            fft_bin[i].triggered = 0;
 
-		// add current trigger state to hist buffer
-		fft_bin[i].trigger_hist[HIST_SIZE-1] = fft_bin[i].triggered;
-	}
+        // if this bin is decreasing from last time it is no longer a beat
+        //if (fft_bin_diff[i] <= 0)
+        //    fft_bin_triggered[i] = 0;
+
+        // add current trigger state to hist buffer
+        fft_bin[i].trigger_hist[HIST_SIZE-1] = fft_bin[i].triggered;
+    }
 }
 
 
 void assign_lights( void )
 {
-	int pulse_count = 0;
-	int center_of_pulse = 0;
+    int pulse_count = 0;
+    int center_of_pulse = 0;
 
-	// finds how many groups of pulses there are
-	// marks the center of them
-	for (int i=1; i<FFT_NUM_BINS; i++)
-	{
-		// not a pulse until proved otherwise		
-		fft_bin[i].is_pulse = 0;
+    // finds how many groups of pulses there are
+    // marks the center of them
+    for (int i=1; i<FFT_NUM_BINS; i++)
+    {
+        // not a pulse until proved otherwise        
+        fft_bin[i].is_pulse = 0;
 
-		// if this one is triggered and the previous one isn't we found start of group
-		if (fft_bin[i].triggered && !fft_bin[i-1].triggered)
-		{
-			pulse_count++;
-			center_of_pulse = i;
+        // if this one is triggered and the previous one isn't we found start of group
+        if (fft_bin[i].triggered && !fft_bin[i-1].triggered)
+        {
+            pulse_count++;
+            center_of_pulse = i;
 
-		}
-		// if it is not triggered but the last one is we found end of group
-		else if (!fft_bin[i].triggered && fft_bin[i-1].triggered)
-		{
-			center_of_pulse = (i-center_of_pulse) / 2  + center_of_pulse;
-			fft_bin[center_of_pulse].is_pulse = 1;
-		}
+        }
+        // if it is not triggered but the last one is we found end of group
+        else if (!fft_bin[i].triggered && fft_bin[i-1].triggered)
+        {
+            center_of_pulse = (i-center_of_pulse) / 2  + center_of_pulse;
+            fft_bin[center_of_pulse].is_pulse = 1;
+        }
 
-		// skip grouping logic, just count every one
-		//fft_bin_pulse[i] = fft_bin_triggered[i];
-	}
+        // skip grouping logic, just count every one
+        //fft_bin_pulse[i] = fft_bin_triggered[i];
+    }
 
-	//printf("pulse_count: %d\n", pulse_count);
+    //printf("pulse_count: %d\n", pulse_count);
 
 
-	// go through groups of pulses and map them to lights
-	// a light can only trigger if either:
-	// 	1. we find a pulse that is same place as last time for this light
-	//	2. the light decay is zero, meaning it has not
-	//		had a pulse in a while so we should pulse it asap
+    // go through groups of pulses and map them to lights
+    // a light can only trigger if either:
+    //     1. we find a pulse that is same place as last time for this light
+    //    2. the light decay is zero, meaning it has not
+    //        had a pulse in a while so we should pulse it asap
 
-	// loop through each light
-	for (int i=0; i<NUM_LIGHTS; i++)
-	{
-		// flag to see if we found a pulse (new or repeating)	
-		char found_pulse = 0;
+    // loop through each light
+    for (int i=0; i<NUM_LIGHTS; i++)
+    {
+        // flag to see if we found a pulse (new or repeating)    
+        char found_pulse = 0;
 
-		// loop through all the pulses
-		for (int j=0; j<FFT_NUM_BINS; j++)
-		{
-			// we found a pulse that was in same place as last time
-			// we found a pulse and this light is clear to trigger
-			if ( (fft_bin[j].is_pulse && abs(lights[i].last_bin - j) < 1) ||
-				 (fft_bin[j].is_pulse && lights[i].decay == 0) )
-			{
+        // loop through all the pulses
+        for (int j=0; j<FFT_NUM_BINS; j++)
+        {
+            // we found a pulse that was in same place as last time
+            // we found a pulse and this light is clear to trigger
+            if ( (fft_bin[j].is_pulse && abs(lights[i].last_bin - j) < 1) ||
+                    (fft_bin[j].is_pulse && lights[i].decay == 0) )
+            {
                 // pulse is in a different spot
                 if (abs(lights[i].last_bin - j) >= 1)
                 {
@@ -260,29 +249,29 @@ void assign_lights( void )
                 }
 
                 pulses[i].decay = LIGHT_DECAY;
-				
+
                 lights[i].state = 1;
-				lights[i].last_bin = j;
-				lights[i].decay = LIGHT_DECAY;
+                lights[i].last_bin = j;
+                lights[i].decay = LIGHT_DECAY;
 
-				fft_bin[j].is_pulse = 0;	// clear this pulse since we just handled it
+                fft_bin[j].is_pulse = 0;    // clear this pulse since we just handled it
 
-				found_pulse = 1;
+                found_pulse = 1;
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		// we did not find an repeating or new pulse
-		// either there is no more pulses or the decay is still dying
-		if (!found_pulse)
-		{
-			lights[i].state = 0;
-		}
+        // we did not find an repeating or new pulse
+        // either there is no more pulses or the decay is still dying
+        if (!found_pulse)
+        {
+            lights[i].state = 0;
+        }
 
-		// decrement decay for this light
-		lights[i].decay -= 1;
-		if (lights[i].decay < 0) lights[i].decay = 0;
+        // decrement decay for this light
+        lights[i].decay -= 1;
+        if (lights[i].decay < 0) lights[i].decay = 0;
 
         pulses[i].decay -= 1;
         if (pulses[i].decay < 0) 
@@ -291,15 +280,15 @@ void assign_lights( void )
         }
 
 
-		// when there is a heavy bass line we want to turn on as many lights as possible
-		// also when there is a heavy bass line we will probably be clipping it.
-		// we didn't find a pulse for this light
-		// we clipped a bin
-		// this light is almost free to trigger
-		if (!found_pulse && clipped && lights[i].decay < LIGHT_DECAY / 2)
-			lights[i].state = 1;
-		
-	}
+        // when there is a heavy bass line we want to turn on as many lights as possible
+        // also when there is a heavy bass line we will probably be clipping it.
+        // we didn't find a pulse for this light
+        // we clipped a bin
+        // this light is almost free to trigger
+        if (!found_pulse && clipped && lights[i].decay < LIGHT_DECAY / 2)
+            lights[i].state = 1;
+
+    }
 }
 
 
@@ -311,41 +300,41 @@ void compute_std_dev( void )
     fft_global_hist_std_max = 0;
     fft_global_hist_std_avg = 0;
 
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// compute the std deviation
-		// sqrt(1/n * sum(x - a)^2)
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // compute the std deviation
+        // sqrt(1/n * sum(x - a)^2)
 
-		fft_bin[i].hist_std = 0;
+        fft_bin[i].hist_std = 0;
 
-		for (int k = 0; k < HIST_SIZE; k++)
-		{
-			fft_bin[i].hist_std += pow(fft_bin[i].hist[k] - fft_bin[i].hist_avg, 2);
-		}
+        for (int k = 0; k < HIST_SIZE; k++)
+        {
+            fft_bin[i].hist_std += pow(fft_bin[i].hist[k] - fft_bin[i].hist_avg, 2);
+        }
 
-		fft_bin[i].hist_std /= HIST_SIZE;
+        fft_bin[i].hist_std /= HIST_SIZE;
 
-		fft_bin[i].hist_std = sqrt(fft_bin[i].hist_std);
+        fft_bin[i].hist_std = sqrt(fft_bin[i].hist_std);
 
-		// sum each one for average
+        // sum each one for average
         fft_global_hist_std_avg += fft_bin[i].hist_std;
 
-		// see if we found a new maximum
-		if (fft_bin[i].hist_std > fft_global_hist_std_max) fft_global_hist_std_max = fft_bin[i].hist_std;
+        // see if we found a new maximum
+        if (fft_bin[i].hist_std > fft_global_hist_std_max) fft_global_hist_std_max = fft_bin[i].hist_std;
 
-	}
+    }
 
-	// take average
+    // take average
     fft_global_hist_std_avg /= FFT_NUM_BINS;
 }
 
 // TODO: memcpy
 void copy_bins_to_old( void )
 {
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		fft_bin[i].last_mag = fft_bin[i].mag;
-	}
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        fft_bin[i].last_mag = fft_bin[i].mag;
+    }
 }
 
 // takes the magnitude of the fft output
@@ -353,104 +342,104 @@ void copy_bins_to_old( void )
 // clip it if desired
 void compute_magnitude( void )
 {
-	// we have not clipped a signal until proven otherwise
-	clipped = 0;
+    // we have not clipped a signal until proven otherwise
+    clipped = 0;
 
-	static double clip_mag_raw = 0;
+    static double clip_mag_raw = 0;
 
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// compute magnitude magnitude
-		fft_bin[i].mag = sqrt( fft_out[i][0]*fft_out[i][0] + fft_out[i][1]*fft_out[i][1] );
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // compute magnitude magnitude
+        fft_bin[i].mag = sqrt( fft_out[i][0]*fft_out[i][0] + fft_out[i][1]*fft_out[i][1] );
 
-		// scale it
-		fft_bin[i].mag /= (MAG_SCALE);
+        // scale it
+        fft_bin[i].mag /= (MAG_SCALE);
 
-		// find new clip
-		if (USE_CLIP && fft_bin[i].mag > clip_mag_raw)
-		{
-			clip_mag_raw = fft_bin[i].mag;	
-		}
-	}
+        // find new clip
+        if (USE_CLIP && fft_bin[i].mag > clip_mag_raw)
+        {
+            clip_mag_raw = fft_bin[i].mag;    
+        }
+    }
 
-	// check if we want to use a dynamic clip or not
-	if (USE_CLIP_DYN)
-		// we want to set the clip at some fraction of the actual
-		clip_mag = (clip_mag_raw * 1 / 2);
-	else
-		clip_mag = CLIP_STATIC_MAG;
+    // check if we want to use a dynamic clip or not
+    if (USE_CLIP_DYN)
+        // we want to set the clip at some fraction of the actual
+        clip_mag = (clip_mag_raw * 1 / 2);
+    else
+        clip_mag = CLIP_STATIC_MAG;
 
-	// loop through all bins and see if they need to be clipped
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		if (USE_CLIP && fft_bin[i].mag > clip_mag)
-		{
-			fft_bin[i].mag = clip_mag;
-			clipped = 1;
-		}	
-	}
+    // loop through all bins and see if they need to be clipped
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        if (USE_CLIP && fft_bin[i].mag > clip_mag)
+        {
+            fft_bin[i].mag = clip_mag;
+            clipped = 1;
+        }    
+    }
 
-	// if we haven't clipped a bin this time
-	// we want to start lowering the clip magnitude
-	if (! clipped) 
-	{
-		clip_mag_raw -= pow(clip_mag_decay/100, 3);	// decrease the clip by x^3 since it has slow 'acceleration'
-		clip_mag_decay++;							// increment the index 
-	}
-	else
-		clip_mag_decay = 0;							// we did clip a bin so reset the decay
-
-
-	// calculate the average magnitude
-	fft_global_mag_avg = 0;
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		fft_global_mag_avg += fft_bin[i].mag;
-	}
-	fft_global_mag_avg /= FFT_NUM_BINS;
+    // if we haven't clipped a bin this time
+    // we want to start lowering the clip magnitude
+    if (! clipped) 
+    {
+        clip_mag_raw -= pow(clip_mag_decay/100, 3);    // decrease the clip by x^3 since it has slow 'acceleration'
+        clip_mag_decay++;                            // increment the index 
+    }
+    else
+        clip_mag_decay = 0;                            // we did clip a bin so reset the decay
 
 
-	// if a new song comes on we want to reset the clip
-	// we can tell a new song by seeing if the avg magnitude is close to zero
-	if (fft_global_mag_avg < 0.005)
-	{
-		clip_mag_raw = 0;
-		clip_mag_decay = 0;
-	}
+    // calculate the average magnitude
+    fft_global_mag_avg = 0;
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        fft_global_mag_avg += fft_bin[i].mag;
+    }
+    fft_global_mag_avg /= FFT_NUM_BINS;
+
+
+    // if a new song comes on we want to reset the clip
+    // we can tell a new song by seeing if the avg magnitude is close to zero
+    if (fft_global_mag_avg < 0.005)
+    {
+        clip_mag_raw = 0;
+        clip_mag_decay = 0;
+    }
 }
 
 
 
 // take the difference between these bins are the last
 // TODO: use fft_bin_hist[i][HIST_SIZE-2]
-//		 would only work if noting use delta for everything
+//     would only work if noting use delta for everything
 void compute_delta_from_last( void )
 {
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// calculate difference between these bins and the last
-		// only takes the ones that increased from last time
-		if (fft_bin[i].mag < fft_bin[i].last_mag)
-			fft_bin[i].diff = 0;
-		else
-			fft_bin[i].diff = fft_bin[i].mag - fft_bin[i].last_mag;
-	}
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // calculate difference between these bins and the last
+        // only takes the ones that increased from last time
+        if (fft_bin[i].mag < fft_bin[i].last_mag)
+            fft_bin[i].diff = 0;
+        else
+            fft_bin[i].diff = fft_bin[i].mag - fft_bin[i].last_mag;
+    }
 }
 
 // push the current bins into history
 void add_bins_to_history( void )
 {
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// shift history buffer down
-		for (int k = 1; k<HIST_SIZE; k++)
-		{
-			fft_bin[i].hist[k-1] = fft_bin[i].hist[k];
-		}
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // shift history buffer down
+        for (int k = 1; k<HIST_SIZE; k++)
+        {
+            fft_bin[i].hist[k-1] = fft_bin[i].hist[k];
+        }
 
-		// add current value to the history
-		fft_bin[i].hist[HIST_SIZE-1] = fft_bin[i].mag;
-	}
+        // add current value to the history
+        fft_bin[i].hist[HIST_SIZE-1] = fft_bin[i].mag;
+    }
 }
 
 // calculate average for each bin history
@@ -461,29 +450,29 @@ void compute_bin_hist( void )
     fft_global_hist_mag_max = 0;
     fft_global_hist_mag_avg = 0;
 
-	for (i = 0; i < FFT_NUM_BINS; i++)
-	{
-		// reset bin hist avg
-		fft_bin[i].hist_avg = 0;
+    for (i = 0; i < FFT_NUM_BINS; i++)
+    {
+        // reset bin hist avg
+        fft_bin[i].hist_avg = 0;
 
-		for (int k = 1; k<HIST_SIZE; k++)
-		{
-			// sum all the values in this bin hist
-			fft_bin[i].hist_avg += fft_bin[i].hist[k];
+        for (int k = 1; k<HIST_SIZE; k++)
+        {
+            // sum all the values in this bin hist
+            fft_bin[i].hist_avg += fft_bin[i].hist[k];
 
-			// sum all values for global average
-			fft_global_hist_mag_avg += fft_bin[i].hist[k];
+            // sum all values for global average
+            fft_global_hist_mag_avg += fft_bin[i].hist[k];
 
-			// check to see if we found new global max
-			if (fft_bin[i].hist[k] > fft_global_hist_mag_max)  fft_global_hist_mag_max = fft_bin[i].hist[k];
-		}
-		
-		// average this bin
-		fft_bin[i].hist_avg /= HIST_SIZE;
-	}
+            // check to see if we found new global max
+            if (fft_bin[i].hist[k] > fft_global_hist_mag_max)  fft_global_hist_mag_max = fft_bin[i].hist[k];
+        }
 
-	// average global
-	fft_global_hist_mag_avg /= (FFT_NUM_BINS * HIST_SIZE);
+        // average this bin
+        fft_bin[i].hist_avg /= HIST_SIZE;
+    }
+
+    // average global
+    fft_global_hist_mag_avg /= (FFT_NUM_BINS * HIST_SIZE);
 }
 
 void get_samples_do_fft( void )
@@ -493,38 +482,38 @@ void get_samples_do_fft( void )
 
     for (i = 0; i < SAMPLE_SIZE; i++) buf[i] = 0;
 
-	int data = fread(buf, sizeof(int16_t), SAMPLE_SIZE, fifo_file);
+    int data = fread(buf, sizeof(int16_t), SAMPLE_SIZE, fifo_file);
 
     if (data != SAMPLE_SIZE)
     {
         printf("WRONG SAMPLE SIZE: %d!\n", data);
     }
-	else
-	{
-		// cast the int16 array into a double array
-		for (i = 0; i < SAMPLE_SIZE; i++) fft_input[i] = (double)buf[i];
+    else
+    {
+        // cast the int16 array into a double array
+        for (i = 0; i < SAMPLE_SIZE; i++) fft_input[i] = (double)buf[i];
 
-		// execute the dft
-		fftw_execute(fft_plan);
+        // execute the dft
+        fftw_execute(fft_plan);
 
-		copy_bins_to_old();
+        copy_bins_to_old();
 
-		compute_magnitude();
+        compute_magnitude();
 
-		compute_delta_from_last();
+        compute_delta_from_last();
 
-		add_bins_to_history();
+        add_bins_to_history();
 
-		compute_bin_hist();	
+        compute_bin_hist();    
 
-		compute_std_dev();
+        compute_std_dev();
 
-	}
+    }
 
-	//printf("%d\n", buf[SAMPLE_SIZE-100]);
-	//printf("sizeof(int16_t): %ld\n", sizeof(int16_t));
-	//printf("sizeof(buf): %ld\n", sizeof(buf));
-	//printf("sizeof(double): %ld\n", sizeof(double));
+    //printf("%d\n", buf[SAMPLE_SIZE-100]);
+    //printf("sizeof(int16_t): %ld\n", sizeof(int16_t));
+    //printf("sizeof(buf): %ld\n", sizeof(buf));
+    //printf("sizeof(double): %ld\n", sizeof(double));
 
 }
 
@@ -542,19 +531,18 @@ int init_fft( void )
         return 1;
     }
 
-	// init light decay
-	for (int i = 0; i<NUM_LIGHTS; i++)
-	{
-		lights[i].decay = 0;
-	}
+    // init light decay
+    for (int i = 0; i<NUM_LIGHTS; i++)
+    {
+        lights[i].decay = 0;
+    }
 
-	return 0;
+    return 0;
 }
 
 
 int main( int argc, char **argv )
 {
- 
     if ( use_gui )
     {
         printf("init_sdl()\n");
@@ -564,8 +552,8 @@ int main( int argc, char **argv )
         init_gl();
     }
 
-	printf("init_fft()\n");
-	if ( init_fft() ) return 1;
+    printf("init_fft()\n");
+    if ( init_fft() ) return 1;
 
     if ( use_serial )
     {
@@ -578,25 +566,25 @@ int main( int argc, char **argv )
     clear_table();
 
     while ( !done )
-	{
-		get_samples_do_fft();
+    {
+        get_samples_do_fft();
 
-		detect_beats();
+        detect_beats();
 
-		assign_lights();
+        assign_lights();
 
         assign_cells();
 
-		if ( use_gui )
+        if ( use_gui )
         {
             if (handle_sdl_events()) return 1;
             draw_all();
         }
 
-		if ( use_serial ) send_serial();
+        if ( use_serial ) send_serial();
 
-		usleep(5000);
-	}
+        usleep(5000);
+    }
 
     return 0;
 }
