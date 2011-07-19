@@ -105,7 +105,7 @@ void init_lights(void)
     {
         lights[i].state = 0;
         lights[i].decay = 0;
-        lights[i].last_bin = 0;
+        lights[i].last_bin = -1;
     }
 }
 
@@ -165,79 +165,110 @@ void assign_lights( void )
         //fft_bin_pulse[i] = fft_bin_triggered[i];
     }
 
-    //printf("pulse_count: %d\n", pulse_count);
+    printf("pulse_count: %d\n", pulse_count);
 
 
     // go through groups of pulses and map them to lights
     // a light can only trigger if either:
     //     1. we find a pulse that is same place as last time for this light
-    //    2. the light decay is zero, meaning it has not
+    //     2. the light decay is zero, meaning it has not
     //        had a pulse in a while so we should pulse it asap
 
-    // loop through each light
+    // assume were not going to find any pulses
+    for (int i=0; i<NUM_LIGHTS; i++) { lights[i].found_pulse = 0; }
+
+    // first find pulses that aleady have a light assigned
     for (int i=0; i<NUM_LIGHTS; i++)
     {
-        // flag to see if we found a pulse (new or repeating)    
-        char found_pulse = 0;
-
-        // loop through all the pulses
         for (int j=0; j<FFT_NUM_BINS; j++)
         {
-            // we found a pulse that was in same place as last time
-            // we found a pulse and this light is clear to trigger
-            if ( (fft_bin[j].is_pulse && abs(lights[i].last_bin - j) < 1) ||
-                    (fft_bin[j].is_pulse && lights[i].decay == 0) )
+            // check if we found a pulse that is in the same spot
+            if (fft_bin[j].is_pulse && lights[i].last_bin ==  j)
             {
-                // pulse is in a different spot
-                if (abs(lights[i].last_bin - j) >= 1)
-                {
-                    pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
-                    pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
-                    int color = (int)(((float)rand() * 360.0 / (RAND_MAX - 1.0)) + 1.0);
-                    hsv_to_rgb(color, 255, 255, &pulses[i].r, &pulses[i].g, &pulses[i].b);
-                    printf("%d %d\n", pulses[i].x, pulses[i].y);
-                }
+                // we found a pulse for this light
+                lights[i].found_pulse = 1;
 
-                pulses[i].decay = LIGHT_DECAY;
-
-                lights[i].state = 1;
-                lights[i].last_bin = j;
+                // reset the decay
+                table_pulses[i].decay = LIGHT_DECAY;
                 lights[i].decay = LIGHT_DECAY;
 
-                fft_bin[j].is_pulse = 0;    // clear this pulse since we just handled it
+                // turn light on
+                lights[i].state = 1;
+               
+                // clear this pulse since we just handled it
+                fft_bin[j].is_pulse = 0;
 
-                found_pulse = 1;
-
+                // stop looking for pulses, go to next light
                 break;
             }
         }
+    }
 
-        // we did not find an repeating or new pulse
-        // either there is no more pulses or the decay is still dying
-        if (!found_pulse)
+
+    // take left over pulses and assign them to empty lights
+    for (int i=0; i<NUM_LIGHTS; i++)
+    {
+        // loop through all the pulses
+        for (int j=0; j<FFT_NUM_BINS; j++)
         {
-            lights[i].state = 0;
+            // check if we found an empty light 
+            if (fft_bin[j].is_pulse && lights[i].decay == 0) 
+            {
+                // we found a pulse for this light
+                lights[i].found_pulse = 1;
+
+                // calculate new position and color
+                table_pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
+                table_pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
+                int color = (int)(((float)rand() * 360.0 / (RAND_MAX - 1.0)) + 1.0);
+                hsv_to_rgb(color, 255, 255, &table_pulses[i].r, &table_pulses[i].g, &table_pulses[i].b);
+
+                // reset the decay
+                table_pulses[i].decay = LIGHT_DECAY;
+                lights[i].decay = LIGHT_DECAY;
+
+                // turn light on
+                lights[i].state = 1;
+
+                // save which bin this was
+                lights[i].last_bin = j;
+
+                // clear this pulse since we just handled it
+                fft_bin[j].is_pulse = 0;
+
+                // stop looking for pulses, go to next light
+                break;
+            }
         }
+    }
 
-        // decrement decay for this light
-        lights[i].decay -= 1;
-        if (lights[i].decay < 0) lights[i].decay = 0;
+    // find all the lights that did not get assigned a pulse
+    for (int i=0; i<NUM_LIGHTS; i++)
+    {
+        // we this light has a pulse go to next one
+        if (lights[i].found_pulse) continue;
 
-        pulses[i].decay -= 1;
-        if (pulses[i].decay < 0) 
-        {
-            pulses[i].decay = 0;
-        }
+        // turn the light off
+        lights[i].state = 0;
 
+        // decrement the decay for this light
+        if (lights[i].decay == 0)
+            // once the decay dies this light no long belongs to a bin
+            lights[i].last_bin = -1;
+        else
+            lights[i].decay -= 1;
+
+        // decrement the decay for this pulse
+        table_pulses[i].decay -= 1;
+        if (table_pulses[i].decay < 0) table_pulses[i].decay = 0;
 
         // when there is a heavy bass line we want to turn on as many lights as possible
         // also when there is a heavy bass line we will probably be clipping it.
         // we didn't find a pulse for this light
         // we clipped a bin
         // this light is almost free to trigger
-        if (!found_pulse && clipped && lights[i].decay < LIGHT_DECAY / 2)
+        if (clipped && lights[i].decay < LIGHT_DECAY / 2)
             lights[i].state = 1;
-
     }
 }
 

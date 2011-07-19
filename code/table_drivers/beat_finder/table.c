@@ -8,7 +8,7 @@
 struct pixel table[TABLE_WIDTH][TABLE_HEIGHT];
 struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
-struct pulse pulses[NUM_LIGHTS];
+struct pulse table_pulses[NUM_LIGHTS];
 
 int i,x,y;
 
@@ -17,9 +17,9 @@ void init_table(void)
     // randomize all the pulses
     for (i=0; i<NUM_LIGHTS; i++)
     {
-        pulses[i].x = rand() % TABLE_WIDTH;
-        pulses[i].y = rand() % TABLE_HEIGHT; 
-        pulses[i].decay = 0;
+        table_pulses[i].x = rand() % TABLE_WIDTH;
+        table_pulses[i].y = rand() % TABLE_HEIGHT; 
+        table_pulses[i].decay = 0;
     }
 
     clear_table();
@@ -102,9 +102,9 @@ void increase_table_bg(float percent)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
         {
-            table[x][y].r += percent;
-            table[x][y].b += percent;
-            table[x][y].g += percent;
+            table[x][y].r *= percent;
+            table[x][y].b *= percent;
+            table[x][y].g *= percent;
             
             if (table[x][y].r > 255) table[x][y].r = 255;
             if (table[x][y].g > 255) table[x][y].g = 255;
@@ -113,7 +113,8 @@ void increase_table_bg(float percent)
     }
 }
 
-void draw_table_bg(void)
+// draw the history buffer as the table background
+void table_draw_hist_bg(void)
 {
     int x,y;
 
@@ -143,16 +144,16 @@ void assign_cells(void)
 {
     clear_table();
 
-    //draw_table_bg();
+    //table_draw_hist_bg();
 
-    //if (clipped) increase_table_bg(150);
+    //if (clipped) increase_table_bg(1.5);
    
     int radius = 4;
     if (clipped) radius *= 1.5;
 
     for (i=0; i<NUM_LIGHTS; i++)
     {
-        draw_circle(pulses[i].x, pulses[i].y, radius, pulses[i].decay, pulses[i].r, pulses[i].g, pulses[i].b);
+        draw_circle(table_pulses[i].x, table_pulses[i].y, radius, table_pulses[i].decay, table_pulses[i].r, table_pulses[i].g, table_pulses[i].b);
     }
 }
 

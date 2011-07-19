@@ -17,7 +17,7 @@ struct pulse
 extern struct pixel table[TABLE_WIDTH][TABLE_HEIGHT];
 extern struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
-extern struct pulse pulses[NUM_LIGHTS];
+extern struct pulse table_pulses[NUM_LIGHTS];
 
 void init_table(void);
 void clear_table(void);

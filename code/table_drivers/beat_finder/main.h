@@ -71,6 +71,7 @@ struct light
     unsigned char state;    // 1 = 0n
     int last_bin;           // keep track of which bin this light was last assigned to
     int decay;              // keep track of how long its been since this light was triggered
+    char found_pulse;       // flag to see if we found a pulse during each loop
 };
 
 extern struct light lights[NUM_LIGHTS];                
