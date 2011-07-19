@@ -6,10 +6,6 @@
 #define TRUE            1
 #define FALSE           0
 
-#define SERIAL_DEV      "/dev/ttyUSB0"
-#define SERIAL_BAUD     B2400
-
-
 #define SAMPLE_SIZE     1024
 #define SAMPLE_RATE     44100
 #define FFT_SIZE        (SAMPLE_SIZE / 2)
@@ -19,26 +15,21 @@
 #define FFT_NUM_BINS    (MAX_FREQ/FREQ_PER_BIN)
 #define FFT_BIN_WIDTH   10              // pixel width of bin
 
-
 // magnitude clip
 #define USE_CLIP        TRUE
 #define USE_CLIP_DYN    TRUE            // 1 = use dynamic clip, 0 = use static
 #define CLIP_STATIC_MAG 800             // static clip magnitude
 
-
 #define MAG_SCALE       10000
-
 
 #define NUM_LIGHTS      (3*4)           // how many lights to display
 #define LIGHT_DECAY     (HIST_SIZE*2)   // cycles until light is clear to trigger again
 #define LIGHT_SIZE      50              // pixel size
 #define LIGHT_SPACING   20              // pixels between groups
 
-
 #define TABLE_WIDTH     16
 #define TABLE_HEIGHT    8
 #define CELL_SIZE       25
-
 
 #define FIFO_FILE        "/tmp/mpd.fifo"
 
@@ -48,7 +39,6 @@ extern char clipped;
 
 extern double MAG_TRIGGER; 
 extern double VAR_TRIGGER; 
-
 
 struct bin
 {
