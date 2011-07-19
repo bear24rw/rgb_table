@@ -69,7 +69,14 @@ extern char fft_bin_triggered[FFT_NUM_BINS];
 extern char fft_bin_triggered_hist[FFT_NUM_BINS][HIST_SIZE];
 extern char fft_bin_pulse[FFT_NUM_BINS];
 
-extern char lights[NUM_LIGHTS];				
+struct light
+{
+    unsigned char state;    // 1 = 0n
+    int last_bin;               // keep track of which bin this light was last assigned to
+    int decay;                  // keep track of how long its been since this light was triggered
+};
+
+extern struct light lights[NUM_LIGHTS];				
 extern int lights_last_bin[NUM_LIGHTS];	
 extern int lights_time_decay[NUM_LIGHTS];
 

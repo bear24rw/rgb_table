@@ -261,13 +261,13 @@ void draw_lines_to_lights( void )
 		// i > 1 so we dont put space in front of the first group
 		if (i > 1 && i%4==0) s += LIGHT_SPACING;
 
-		if (lights_time_decay[i] > 0)
+		if (lights[i].decay > 0)
 		{
 			glBegin(GL_LINES);
-				unsigned char c = 255 * lights_time_decay[i] / LIGHT_DECAY;
+				unsigned char c = 255 * lights[i].decay / LIGHT_DECAY;
 				glColor3ub( c, c, c );
 				glVertex2f( x + s + i*LIGHT_SIZE+(LIGHT_SIZE/2)							, y );	// BL
-				glVertex2f( xpos + lights_last_bin[i]*FFT_BIN_WIDTH+(FFT_BIN_WIDTH/2)	, ypos + HIST_SIZE*FFT_BIN_WIDTH);
+				glVertex2f( xpos + lights[i].last_bin*FFT_BIN_WIDTH+(FFT_BIN_WIDTH/2)	, ypos + HIST_SIZE*FFT_BIN_WIDTH);
 			glEnd();
 		}
 	}
@@ -297,7 +297,7 @@ void draw_lights( void )
 		glEnd();
 
 		// draw light if its on
-		if (lights[i])
+		if (lights[i].state)
 		{
 			glBegin(GL_QUADS);
 				glColor3ub( 25, 0, 255 );

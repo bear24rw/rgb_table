@@ -29,6 +29,7 @@ char	clipped 		=	 	0;			// 1 = we clipped a bin this loop
 double MAG_TRIGGER	=	.58; //.36
 double VAR_TRIGGER	=	.54; //.36
 
+
 double fft_bin[FFT_NUM_BINS];
 double fft_bin_avg;
 double fft_bin_last[FFT_NUM_BINS];
@@ -49,10 +50,7 @@ char fft_bin_triggered[FFT_NUM_BINS];
 char fft_bin_triggered_hist[FFT_NUM_BINS][HIST_SIZE];
 char fft_bin_pulse[FFT_NUM_BINS];
 
-
-char lights[NUM_LIGHTS];					// 1 = On
-int lights_last_bin[NUM_LIGHTS];			// keep track of which bin this light was assigned to
-int lights_time_decay[NUM_LIGHTS];			// keep track of how long its been since light was triggered
+struct light lights[NUM_LIGHTS];
 
 double *fft_input;
 fftw_complex *fft_out;
@@ -143,15 +141,15 @@ int send_serial( void )
 {
 	unsigned char data = 0;
 
-	if (lights[0]) data += 1;
-	if (lights[2]) data += 2;
-	if (lights[4]) data += 4;
-	if (lights[6]) data += 8;
+	if (lights[0].state) data += 1;
+	if (lights[2].state) data += 2;
+	if (lights[4].state) data += 4;
+	if (lights[6].state) data += 8;
 
-	if (lights[1]) data += 16;
-	if (lights[3]) data += 32;
-	if (lights[5]) data += 64;
-	if (lights[7]) data += 128;
+	if (lights[1].state) data += 16;
+	if (lights[3].state) data += 32;
+	if (lights[5].state) data += 64;
+	if (lights[7].state) data += 128;
 
 	int n = write(serial_file, &data, 1);
 	if (n < 0)
@@ -163,6 +161,15 @@ int send_serial( void )
 	return TRUE;
 }
 
+void init_lights(void)
+{
+    for (i=0; i<NUM_LIGHTS; i++)
+    {
+        lights[i].state = 0;
+        lights[i].decay = 0;
+        lights[i].last_bin = 0;
+    }
+}
 
 void detect_beats( void )
 {
@@ -242,11 +249,11 @@ void assign_lights( void )
 		{
 			// we found a pulse that was in same place as last time
 			// we found a pulse and this light is clear to trigger
-			if ( (fft_bin_pulse[j] && abs(lights_last_bin[i] - j) < 1) ||
-				 (fft_bin_pulse[j] && lights_time_decay[i] == 0) )
+			if ( (fft_bin_pulse[j] && abs(lights[i].last_bin - j) < 1) ||
+				 (fft_bin_pulse[j] && lights[i].decay == 0) )
 			{
                 // pulse is in a different spot
-                if (abs(lights_last_bin[i] - j) >= 1)
+                if (abs(lights[i].last_bin - j) >= 1)
                 {
                     pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
                     pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
@@ -257,10 +264,9 @@ void assign_lights( void )
 
                 pulses[i].decay = LIGHT_DECAY;
 				
-                lights[i] = 1;
-				lights_last_bin[i] = j;
-				lights_time_decay[i] = LIGHT_DECAY;
-
+                lights[i].state = 1;
+				lights[i].last_bin = j;
+				lights[i].decay = LIGHT_DECAY;
 
 				fft_bin_pulse[j] = 0;	// clear this pulse since we just handled it
 
@@ -274,12 +280,12 @@ void assign_lights( void )
 		// either there is no more pulses or the decay is still dying
 		if (!found_pulse)
 		{
-			lights[i] = 0;
+			lights[i].state = 0;
 		}
 
 		// decrement decay for this light
-		lights_time_decay[i] -= 1;
-		if (lights_time_decay[i] < 0) lights_time_decay[i] = 0;
+		lights[i].decay -= 1;
+		if (lights[i].decay < 0) lights[i].decay = 0;
 
         pulses[i].decay -= 1;
         if (pulses[i].decay < 0) 
@@ -293,8 +299,8 @@ void assign_lights( void )
 		// we didn't find a pulse for this light
 		// we clipped a bin
 		// this light is almost free to trigger
-		if (!found_pulse && clipped && lights_time_decay[i] < LIGHT_DECAY / 2)
-			lights[i] = 1;
+		if (!found_pulse && clipped && lights[i].decay < LIGHT_DECAY / 2)
+			lights[i].state = 1;
 		
 	}
 }
@@ -546,7 +552,7 @@ int init_fft( void )
 	// init light decay
 	for (int i = 0; i<NUM_LIGHTS; i++)
 	{
-		lights_time_decay[i] = 0;
+		lights[i].decay = 0;
 	}
 
 	return 0;
@@ -574,7 +580,7 @@ int main( int argc, char **argv )
         if ( init_serial() ) use_serial = FALSE;
     }
 
-
+    init_lights();
     init_pulses();
     clear_table();
 
