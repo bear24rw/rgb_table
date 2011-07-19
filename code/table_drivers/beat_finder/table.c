@@ -10,7 +10,7 @@ struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
 struct pulse pulses[NUM_LIGHTS];
 
-int i;
+int i,x,y;
 
 void init_pulses(void)
 {
@@ -25,8 +25,6 @@ void init_pulses(void)
 
 void clear_table(void)
 {
-    int x,y = 0;
-
     for (x=0; x<TABLE_WIDTH; x++)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
@@ -40,8 +38,6 @@ void clear_table(void)
 
 void clear_tmp_table(void)
 {
-    int x,y = 0;
-
     for (x=0; x<TABLE_WIDTH; x++)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
@@ -56,7 +52,6 @@ void clear_tmp_table(void)
 
 void draw_circle(int x, int y, int radius, int decay, int r, int g, int b)
 {
-
     clear_tmp_table();
 
     double rr;
@@ -96,14 +91,10 @@ void draw_circle(int x, int y, int radius, int decay, int r, int g, int b)
             if (table[x][y].b > 255) table[x][y].b = 255;
         }
     }
-
-
 }
 
 void increase_table_bg(float percent)
 {
-    int x,y;
-
     for (x=0; x<TABLE_WIDTH; x++)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
@@ -117,7 +108,6 @@ void increase_table_bg(float percent)
             if (table[x][y].b > 255) table[x][y].b = 255;
         }
     }
-    
 }
 
 void draw_table_bg(void)
@@ -144,7 +134,6 @@ void draw_table_bg(void)
             if (table[x][y].b > 255) table[x][y].b = 255;
         }
     }
-    
 }
 
 void assign_cells(void)
@@ -162,7 +151,5 @@ void assign_cells(void)
     {
         draw_circle(pulses[i].x, pulses[i].y, radius, pulses[i].decay, pulses[i].r, pulses[i].g, pulses[i].b);
     }
-    
-
 }
 

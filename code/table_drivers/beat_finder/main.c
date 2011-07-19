@@ -597,9 +597,7 @@ int main( int argc, char **argv )
 		if ( use_serial ) send_serial();
 
 		usleep(5000);
-
 	}
-
 
     return 0;
 }
