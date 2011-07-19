@@ -21,8 +21,8 @@ unsigned char use_serial = TRUE;
 int serial_file;
 
 double clip_mag = 0;        // dynamic magnitude clip
-doubleclip_mag_decay = 0;   // dynamio clip decreases at rate of some function, this indexes the function
-charclipped = 0;            // 1 = we clipped a bin this loop
+double clip_mag_decay = 0;   // dynamio clip decreases at rate of some function, this indexes the function
+char clipped = 0;            // 1 = we clipped a bin this loop
 
 // Mag: 0.170000 Var: 0.220000
 // default trigger levels for detecting beats
