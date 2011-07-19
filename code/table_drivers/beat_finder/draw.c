@@ -119,25 +119,6 @@ void resize_window( int width, int height )
     glLoadIdentity( );
 }
 
-// handle key press events
-void service_keys(void)
-{
-	Uint8 *keys = SDL_GetKeyState(0);
-
-	if (keys[SDLK_ESCAPE])	done=TRUE;
-
-	if (keys[SDLK_F1])	SDL_WM_ToggleFullScreen( surface );
-
-	if (keys[SDLK_d])	xpos += (float)movement;
-	if (keys[SDLK_a])	xpos -= (float)movement;
-	if (keys[SDLK_w])	ypos -= (float)movement;
-   	if (keys[SDLK_s])	ypos += (float)movement;
-
-   	if (keys[SDLK_o])	{ MAG_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-   	if (keys[SDLK_l])	{ MAG_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-   	if (keys[SDLK_i])	{ VAR_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-   	if (keys[SDLK_k])	{ VAR_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-}
 
 void draw_table( int off_x, int off_y)
 {
@@ -425,6 +406,25 @@ int draw_all(void)
 	return TRUE;
 }
 
+// handle key press events
+void service_keys(void)
+{
+	Uint8 *keys = SDL_GetKeyState(0);
+
+	if (keys[SDLK_ESCAPE])	done=TRUE;
+
+	if (keys[SDLK_F1])	SDL_WM_ToggleFullScreen( surface );
+
+	if (keys[SDLK_d])	xpos += (float)movement;
+	if (keys[SDLK_a])	xpos -= (float)movement;
+	if (keys[SDLK_w])	ypos -= (float)movement;
+   	if (keys[SDLK_s])	ypos += (float)movement;
+
+   	if (keys[SDLK_o])	{ MAG_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+   	if (keys[SDLK_l])	{ MAG_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+   	if (keys[SDLK_i])	{ VAR_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+   	if (keys[SDLK_k])	{ VAR_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+}
 
 int handle_sdl_events(void)
 {

@@ -15,8 +15,10 @@
 #include "draw.h"
 #include "table.h"
 
-int serial_file;
+unsigned char use_gui = FALSE;
+unsigned char use_serial = TRUE;
 
+int serial_file;
 
 double  clip_mag		=		0;			// dynamic magnitude clip
 double	clip_mag_decay	=		0;			// dynamio clip decreases at rate of some function, this indexes the function
@@ -119,7 +121,7 @@ int init_serial( void )
 	if (serial_file == -1)
 	{
 		printf("Could not open serial port\n");
-		return 0;
+		return 1;
 	}
 
 	fcntl(serial_file, F_SETFL, 0);
@@ -134,7 +136,7 @@ int init_serial( void )
 
 	tcsetattr(serial_file, TCSANOW, &options);
 
-	return TRUE;
+	return 0;
 }
 
 int send_serial( void )
@@ -553,22 +555,28 @@ int init_fft( void )
 
 int main( int argc, char **argv )
 {
-  
-	printf("init_sdl()\n");
- 	if ( init_sdl() ) return 1;
+ 
+    if ( use_gui )
+    {
+        printf("init_sdl()\n");
+        if ( init_sdl() ) return 1;
+
+        printf("init_gl()\n");
+        init_gl();
+    }
 
 	printf("init_fft()\n");
 	if ( init_fft() ) return 1;
 
-	printf("init_serial()\n");
-	char has_serial = init_serial();
+    if ( use_serial )
+    {
+        printf("init_serial()\n");
+        if ( init_serial() ) use_serial = FALSE;
+    }
 
-	printf("init_gl()\n");
-	init_gl();
 
     init_pulses();
     clear_table();
-
 
     while ( !done )
 	{
@@ -580,13 +588,13 @@ int main( int argc, char **argv )
 
         assign_cells();
 
-        if (handle_sdl_events()) return 1;
+		if ( use_gui )
+        {
+            if (handle_sdl_events()) return 1;
+            draw_all();
+        }
 
-		draw_all();
-
-		service_keys();
-
-		if ( has_serial ) send_serial();
+		if ( use_serial ) send_serial();
 
 		usleep(5000);
 
