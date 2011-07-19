@@ -27,9 +27,6 @@
 #define LIGHT_SIZE      50              // pixel size
 #define LIGHT_SPACING   20              // pixels between groups
 
-#define TABLE_WIDTH     16
-#define TABLE_HEIGHT    8
-#define CELL_SIZE       25
 
 #define FIFO_FILE        "/tmp/mpd.fifo"
 

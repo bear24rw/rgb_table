@@ -1,6 +1,10 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#define TABLE_WIDTH     16
+#define TABLE_HEIGHT    8
+#define CELL_SIZE       25
+
 struct pixel
 {
     int r,g,b;
