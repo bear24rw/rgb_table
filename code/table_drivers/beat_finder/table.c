@@ -12,8 +12,9 @@ struct pulse pulses[NUM_LIGHTS];
 
 int i,x,y;
 
-void init_pulses(void)
+void init_table(void)
 {
+    // randomize all the pulses
     for (i=0; i<NUM_LIGHTS; i++)
     {
         pulses[i].x = rand() % TABLE_WIDTH;
@@ -21,6 +22,8 @@ void init_pulses(void)
         pulses[i].decay = 0;
     }
 
+    clear_table();
+    clear_tmp_table();
 }
 
 void clear_table(void)

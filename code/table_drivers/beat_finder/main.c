@@ -512,7 +512,7 @@ int main( int argc, char **argv )
     }
 
     init_lights();
-    init_pulses();
+    init_table();
     clear_table();
 
     while ( !done )
