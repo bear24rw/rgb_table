@@ -49,25 +49,32 @@ extern char	clipped;
 extern double MAG_TRIGGER; 
 extern double VAR_TRIGGER; 
 
-extern double fft_bin[FFT_NUM_BINS];
-extern double fft_bin_avg;
-extern double fft_bin_last[FFT_NUM_BINS];
-extern double fft_bin_diff[FFT_NUM_BINS];
 
-extern double fft_bin_hist[FFT_NUM_BINS][HIST_SIZE];
+struct bin
+{
+    double mag;
+    double last_mag;
+    double diff;
+    
+    double hist[HIST_SIZE];
+    double hist_avg;
+    double hist_std;
 
-extern double fft_bin_hist_avg[FFT_NUM_BINS];
-extern double fft_bin_hist_global_avg;		
-extern double fft_bin_hist_global_max;	
+    char triggered;
+    char trigger_hist[HIST_SIZE];
 
-extern double fft_bin_hist_std_idv[FFT_NUM_BINS][HIST_SIZE];
-extern double fft_bin_hist_std[FFT_NUM_BINS];
-extern double fft_bin_hist_std_avg;	
-extern double fft_bin_hist_std_max;
+    char is_pulse;
+};
 
-extern char fft_bin_triggered[FFT_NUM_BINS];
-extern char fft_bin_triggered_hist[FFT_NUM_BINS][HIST_SIZE];
-extern char fft_bin_pulse[FFT_NUM_BINS];
+extern struct bin fft_bin[FFT_NUM_BINS];
+
+extern double fft_global_mag_avg;
+extern double fft_global_mag_max;
+extern double fft_global_hist_mag_avg;				// average of all the bin history averages
+extern double fft_global_hist_mag_max;				// max value of global history
+extern double fft_global_hist_std_avg;				// avg of all the std deviations
+extern double fft_global_hist_std_max;				// max of all the std deviations
+
 
 struct light
 {

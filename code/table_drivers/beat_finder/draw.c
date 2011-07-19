@@ -162,7 +162,7 @@ void draw_real_img_plot( float off_x, float off_y)
 		for (int i=0; i<FFT_NUM_BINS; i++)
 		{
 
-			if (fft_bin_triggered[i])
+			if (fft_bin[i].triggered)
 				glColor3ub( 255, 255, 255);
 			else
 				glColor3ub( 255, 0, 255);
@@ -177,7 +177,7 @@ void draw_real_img_plot( float off_x, float off_y)
 // draw the magnitude bar
 void draw_mag( int i, float height, float off_x, float off_y )
 {
-	if (fft_bin_triggered[i])
+	if (fft_bin[i].triggered)
 		glColor3ub( 255, 255, 255);
 	else
 		glColor3ub( 255, 0, 0 );
@@ -197,9 +197,8 @@ void draw_mag_hist_avg( int i, float off_x, float off_y)
 {
 	glBegin(GL_LINES);
 		glColor3ub( 0, 255, 0 );
-
-		glVertex2f( off_x + i*FFT_BIN_WIDTH 	, off_y + fft_bin_hist_avg[i] );
-		glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH	, off_y + fft_bin_hist_avg[i] );
+		glVertex2f( off_x + i*FFT_BIN_WIDTH 	, off_y + fft_bin[i].hist_avg );
+		glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH	, off_y + fft_bin[i].hist_avg );
 	glEnd();
 }
 
@@ -208,9 +207,8 @@ void draw_mag_hist_var( int i, float off_x, float off_y)
 {
 	glBegin(GL_LINES);
 		glColor3ub( 255, 255, 0);
-
-		glVertex2f( off_x + i*FFT_BIN_WIDTH 	, off_y + fft_bin_hist_std[i] );
-		glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH	, off_y + fft_bin_hist_std[i] );
+		glVertex2f( off_x + i*FFT_BIN_WIDTH 	, off_y + fft_bin[i].hist_std );
+		glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH	, off_y + fft_bin[i].hist_std );
 	glEnd();
 }
 
@@ -221,12 +219,12 @@ void draw_mag_hist( int i, float off_x, float off_y)
 
 		for (int k = 0; k < HIST_SIZE; k++)
 		{
-			float r = (255*fft_bin_hist[i][k])/fft_bin_hist_global_max;
-			float b = (255*fft_bin_hist_std[i])/(fft_bin_hist_std_max);
+			float r = (255*fft_bin[i].hist[k])/fft_global_hist_mag_max;
+			float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
 			float g = 0;
 
 			// if this was a beat, color it white
-			if (fft_bin_triggered_hist[i][k]) {r = 255; g = 255; b = 255;}
+			if (fft_bin[i].trigger_hist[k]) {r = 255; g = 255; b = 255;}
 
 			glColor3ub( r, g, b );
 
@@ -325,8 +323,8 @@ int draw_all(void)
 	// draw each bins mag, hist, hist_avg, hist_var
 	for (int i=0; i< FFT_NUM_BINS; i++)
 	{
-		draw_mag(i, fft_bin[i] , 0, HIST_SIZE*FFT_BIN_WIDTH);
-		//draw_mag(i, fft_bin_diff[i] , 0, HIST_SIZE*FFT_BIN_WIDTH);	// draw diff
+		draw_mag(i, fft_bin[i].mag , 0, HIST_SIZE*FFT_BIN_WIDTH);
+		//draw_mag(i, fft_bin[i].diff , 0, HIST_SIZE*FFT_BIN_WIDTH);	// draw diff
 		//draw_mag_hist_avg(i, 0, HIST_SIZE*FFT_BIN_WIDTH);
 		//draw_mag_hist_var(i, 0, HIST_SIZE*FFT_BIN_WIDTH);
 		draw_mag_hist(i, 0, 0);
@@ -336,15 +334,15 @@ int draw_all(void)
 	// draw average var line
 	glBegin(GL_LINES);
 		glColor3ub( 255, 255, 0);
-		glVertex2f( 0				, HIST_SIZE*FFT_BIN_WIDTH + fft_bin_hist_std_avg);
-		glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH	, HIST_SIZE*FFT_BIN_WIDTH + fft_bin_hist_std_avg );
+		glVertex2f( 0				, HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
+		glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH	, HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
 	glEnd();
 
 	// draw history average average line
 	glBegin(GL_LINES);
 		glColor3ub( 0, 255, 0);
-		glVertex2f( 0 				, HIST_SIZE*FFT_BIN_WIDTH + fft_bin_hist_global_avg);
-		glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH	, HIST_SIZE*FFT_BIN_WIDTH + fft_bin_hist_global_avg );
+		glVertex2f( 0 				, HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
+		glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH	, HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
 	glEnd();
 */
 
