@@ -1,9 +1,14 @@
-CC = gcc -Wall -O2
+CC = gcc
+CFLAGS = -Wall -O2 -lGL -lGLU -lm -lSDL_image -lfftw3 `sdl-config --cflags --libs`
+OBJECTS = main.o fft.o draw.o table.o serial.o
 
-all:
-	$(CC) main.c fft.c draw.c table.c serial.c -o main -lGL -lGLU -lm -lSDL_image -lfftw3 `sdl-config --cflags --libs`
+main : $(OBJECTS)
+		$(CC) $(CFLAGS) $(OBJECTS) -o main
+
+%.o : %.c
+		$(CC) $(CFLAGS) -c $<
 
 clean:
 	@echo Cleaning up...
-	@rm main
+	rm -fr *.o main
 	@echo Done.
