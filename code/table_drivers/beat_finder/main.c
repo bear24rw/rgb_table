@@ -43,7 +43,7 @@ double *fft_input;
 fftw_complex *fft_out;
 fftw_plan fft_plan;
 
-int i = 0;
+int i,j,k = 0;
 
 FILE *fifo_file;
 
@@ -111,10 +111,10 @@ void init_lights(void)
 
 void detect_beats( void )
 {
-    for (int i = 0; i < FFT_NUM_BINS; i++)
+    for (i = 0; i < FFT_NUM_BINS; i++)
     {
         // shift trigger history down
-        for (int k=1; k < HIST_SIZE; k++)
+        for (k=1; k < HIST_SIZE; k++)
         {
             fft_bin[i].trigger_hist[k-1] = fft_bin[i].trigger_hist[k];
         }
@@ -142,7 +142,7 @@ void assign_lights( void )
 
     // finds how many groups of pulses there are
     // marks the center of them
-    for (int i=1; i<FFT_NUM_BINS; i++)
+    for (i=1; i<FFT_NUM_BINS; i++)
     {
         // not a pulse until proved otherwise        
         fft_bin[i].is_pulse = 0;
@@ -175,12 +175,12 @@ void assign_lights( void )
     //        had a pulse in a while so we should pulse it asap
 
     // assume were not going to find any pulses
-    for (int i=0; i<NUM_LIGHTS; i++) { lights[i].found_pulse = 0; }
+    for (i=0; i<NUM_LIGHTS; i++) { lights[i].found_pulse = 0; }
 
     // first find pulses that aleady have a light assigned
-    for (int i=0; i<NUM_LIGHTS; i++)
+    for (i=0; i<NUM_LIGHTS; i++)
     {
-        for (int j=0; j<FFT_NUM_BINS; j++)
+        for (j=0; j<FFT_NUM_BINS; j++)
         {
             // check if we found a pulse that is in the same spot
             if (fft_bin[j].is_pulse && lights[i].last_bin ==  j)
@@ -206,10 +206,10 @@ void assign_lights( void )
 
 
     // take left over pulses and assign them to empty lights
-    for (int i=0; i<NUM_LIGHTS; i++)
+    for (i=0; i<NUM_LIGHTS; i++)
     {
         // loop through all the pulses
-        for (int j=0; j<FFT_NUM_BINS; j++)
+        for (j=0; j<FFT_NUM_BINS; j++)
         {
             // check if we found an empty light 
             if (fft_bin[j].is_pulse && lights[i].decay == 0) 
@@ -243,7 +243,7 @@ void assign_lights( void )
     }
 
     // find all the lights that did not get assigned a pulse
-    for (int i=0; i<NUM_LIGHTS; i++)
+    for (i=0; i<NUM_LIGHTS; i++)
     {
         // we this light has a pulse go to next one
         if (lights[i].found_pulse) continue;
@@ -288,7 +288,7 @@ void compute_std_dev( void )
 
         fft_bin[i].hist_std = 0;
 
-        for (int k = 0; k < HIST_SIZE; k++)
+        for (k = 0; k < HIST_SIZE; k++)
         {
             fft_bin[i].hist_std += pow(fft_bin[i].hist[k] - fft_bin[i].hist_avg, 2);
         }
@@ -413,7 +413,7 @@ void add_bins_to_history( void )
     for (i = 0; i < FFT_NUM_BINS; i++)
     {
         // shift history buffer down
-        for (int k = 1; k<HIST_SIZE; k++)
+        for (k = 1; k<HIST_SIZE; k++)
         {
             fft_bin[i].hist[k-1] = fft_bin[i].hist[k];
         }
@@ -436,7 +436,7 @@ void compute_bin_hist( void )
         // reset bin hist avg
         fft_bin[i].hist_avg = 0;
 
-        for (int k = 1; k<HIST_SIZE; k++)
+        for (k = 1; k<HIST_SIZE; k++)
         {
             // sum all the values in this bin hist
             fft_bin[i].hist_avg += fft_bin[i].hist[k];
@@ -513,7 +513,7 @@ int init_fft( void )
     }
 
     // init light decay
-    for (int i = 0; i<NUM_LIGHTS; i++)
+    for (i = 0; i<NUM_LIGHTS; i++)
     {
         lights[i].decay = 0;
     }
