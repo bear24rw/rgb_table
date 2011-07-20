@@ -31,7 +31,7 @@ SDL_Surface *surface;
 
 unsigned char done = FALSE;
 
-int i;
+int i,j,k;
 
 void init_gl(void)
 {
@@ -156,7 +156,7 @@ void draw_real_img_plot( float off_x, float off_y)
 {
     glBegin(GL_POINTS);
 
-    for (int i=0; i<FFT_NUM_BINS; i++)
+    for (i=0; i<FFT_NUM_BINS; i++)
     {
 
         if (fft_bin[i].triggered)
@@ -214,7 +214,7 @@ void draw_mag_hist( int i, float off_x, float off_y)
 {
     glBegin(GL_QUADS);
 
-    for (int k = 0; k < HIST_SIZE; k++)
+    for (k = 0; k < HIST_SIZE; k++)
     {
         float r = (255*fft_bin[i].hist[k])/fft_global_hist_mag_max;
         float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
@@ -250,7 +250,7 @@ void draw_lines_to_lights( void )
 
     double s = 0;    // spacing
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (i = 0; i < NUM_LIGHTS; i++)
     {
         // i > 1 so we dont put space in front of the first group
         if (i > 1 && i%4==0) s += LIGHT_SPACING;
@@ -274,7 +274,7 @@ void draw_lights( void )
 
     double s = 0;    // spacing
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (i = 0; i < NUM_LIGHTS; i++)
     {
 
         // space out lights in groups of 4
@@ -315,7 +315,7 @@ int draw_all(void)
     glTranslatef( xpos, ypos, zpos);
 
     // draw each bins mag, hist, hist_avg, hist_var
-    for (int i=0; i< FFT_NUM_BINS; i++)
+    for (i=0; i< FFT_NUM_BINS; i++)
     {
         draw_mag(i, fft_bin[i].mag , 0, HIST_SIZE*FFT_BIN_WIDTH);
         //draw_mag(i, fft_bin[i].diff , 0, HIST_SIZE*FFT_BIN_WIDTH);    // draw diff
