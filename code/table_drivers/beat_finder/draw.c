@@ -131,25 +131,23 @@ void draw_table( int off_x, int off_y)
             // draw outline of cell
             glBegin(GL_LINE_LOOP);
             glColor3ub( 100, 100, 100 );
-            glVertex2f( off_x + x*CELL_SIZE        , off_y + y*CELL_SIZE );                // BL
-            glVertex2f( off_x + x*CELL_SIZE        , off_y + (y+1)*CELL_SIZE );    // TL
-            glVertex2f( off_x + (x+1)*CELL_SIZE    , off_y + (y+1)*CELL_SIZE );     // TR
-            glVertex2f( off_x + (x+1)*CELL_SIZE    , off_y + y*CELL_SIZE ); // BR
+            glVertex2f( off_x + x*CELL_SIZE         , off_y + y*CELL_SIZE );     // BL
+            glVertex2f( off_x + x*CELL_SIZE         , off_y + (y+1)*CELL_SIZE ); // TL
+            glVertex2f( off_x + (x+1)*CELL_SIZE     , off_y + (y+1)*CELL_SIZE ); // TR
+            glVertex2f( off_x + (x+1)*CELL_SIZE     , off_y + y*CELL_SIZE );     // BR
             glEnd();
 
             // draw cell color
             glBegin(GL_QUADS);
             glColor3ub( table[x][y].r, table[x][y].g, table[x][y].b );
-            glVertex2f( off_x + x*CELL_SIZE + 1        , off_y + y*CELL_SIZE + 1);                // BL
-            glVertex2f( off_x + x*CELL_SIZE    + 1        , off_y + (y+1)*CELL_SIZE -1);    // TL
-            glVertex2f( off_x + (x+1)*CELL_SIZE - 1    , off_y + (y+1)*CELL_SIZE -1);     // TR
-            glVertex2f( off_x + (x+1)*CELL_SIZE    - 1 , off_y + y*CELL_SIZE + 1); // BR
+            glVertex2f( off_x + x*CELL_SIZE + 1     , off_y + y*CELL_SIZE + 1);     // BL
+            glVertex2f( off_x + x*CELL_SIZE + 1     , off_y + (y+1)*CELL_SIZE -1);  // TL
+            glVertex2f( off_x + (x+1)*CELL_SIZE - 1 , off_y + (y+1)*CELL_SIZE -1);  // TR
+            glVertex2f( off_x + (x+1)*CELL_SIZE - 1 , off_y + y*CELL_SIZE + 1);     // BR
             glEnd();
-
         }
     }
 }
-
 
 // draw the fft bins on a real vs imaginary plot
 void draw_real_img_plot( float off_x, float off_y)
@@ -158,7 +156,6 @@ void draw_real_img_plot( float off_x, float off_y)
 
     for (i=0; i<FFT_NUM_BINS; i++)
     {
-
         if (fft_bin[i].triggered)
             glColor3ub( 255, 255, 255);
         else
@@ -170,9 +167,8 @@ void draw_real_img_plot( float off_x, float off_y)
     glEnd();
 }
 
-
-// draw the magnitude bar
-void draw_mag( int i, float height, float off_x, float off_y )
+// draw a magnitude bar
+void draw_mag(int i, float height, float off_x, float off_y )
 {
     if (fft_bin[i].triggered)
         glColor3ub( 255, 255, 255);
@@ -181,16 +177,16 @@ void draw_mag( int i, float height, float off_x, float off_y )
 
     glBegin(GL_LINE_LOOP);
 
-    glVertex2f( off_x + i*FFT_BIN_WIDTH        , off_y );            // BL
-    glVertex2f( off_x + i*FFT_BIN_WIDTH        , off_y + height );    // TL
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH    , off_y + height);    // TR
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH    , off_y );
+    glVertex2f( off_x + i*FFT_BIN_WIDTH         , off_y );           // BL
+    glVertex2f( off_x + i*FFT_BIN_WIDTH         , off_y + height );  // TL
+    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH     , off_y + height);   // TR
+    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH     , off_y );
 
     glEnd();
 }
 
-// draw average line
-void draw_mag_hist_avg( int i, float off_x, float off_y)
+// draw an average line
+void draw_mag_hist_avg(int i, float off_x, float off_y)
 {
     glBegin(GL_LINES);
     glColor3ub( 0, 255, 0 );
@@ -199,8 +195,8 @@ void draw_mag_hist_avg( int i, float off_x, float off_y)
     glEnd();
 }
 
-// draw variance line
-void draw_mag_hist_var( int i, float off_x, float off_y)
+// draw a variance line
+void draw_mag_hist_var(int i, float off_x, float off_y)
 {
     glBegin(GL_LINES);
     glColor3ub( 255, 255, 0);
@@ -210,14 +206,14 @@ void draw_mag_hist_var( int i, float off_x, float off_y)
 }
 
 // draw magnitude history
-void draw_mag_hist( int i, float off_x, float off_y)
+void draw_mag_hist(int i, float off_x, float off_y)
 {
     glBegin(GL_QUADS);
 
     for (k = 0; k < HIST_SIZE; k++)
     {
-        float r = (255*fft_bin[i].hist[k])/fft_global_hist_mag_max;
-        float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
+        float r = 255*fft_bin[i].hist[k]/fft_global_hist_mag_max;
+        float b = 255*fft_bin[i].hist_std/fft_global_hist_std_max;
         float g = 0;
 
         // if this was a beat, color it white
@@ -225,10 +221,10 @@ void draw_mag_hist( int i, float off_x, float off_y)
 
         glColor3ub( r, g, b );
 
-        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH    , off_y + k*FFT_BIN_WIDTH );         // TL
-        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH , off_y + (k+1)*FFT_BIN_WIDTH );     // TR
-        glVertex2f( off_x + i*FFT_BIN_WIDTH        , off_y + (k+1)*FFT_BIN_WIDTH );    // BR
-        glVertex2f( off_x + i*FFT_BIN_WIDTH        , off_y + k*FFT_BIN_WIDTH );        // BL 
+        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH , off_y + k*FFT_BIN_WIDTH );        // TL
+        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH , off_y + (k+1)*FFT_BIN_WIDTH );    // TR
+        glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + (k+1)*FFT_BIN_WIDTH );    // BR
+        glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + k*FFT_BIN_WIDTH );        // BL 
     }
 
     glEnd();
@@ -260,7 +256,7 @@ void draw_lines_to_lights( void )
             glBegin(GL_LINES);
             unsigned char c = 255 * lights[i].decay / LIGHT_DECAY;
             glColor3ub( c, c, c );
-            glVertex2f( x + s + i*LIGHT_SIZE+(LIGHT_SIZE/2)                            , y );    // BL
+            glVertex2f( x + s + i*LIGHT_SIZE+(LIGHT_SIZE/2)                          , y ); // BL
             glVertex2f( xpos + lights[i].last_bin*FFT_BIN_WIDTH+(FFT_BIN_WIDTH/2)    , ypos + HIST_SIZE*FFT_BIN_WIDTH);
             glEnd();
         }
@@ -276,7 +272,6 @@ void draw_lights( void )
 
     for (i = 0; i < NUM_LIGHTS; i++)
     {
-
         // space out lights in groups of 4
         // i > 1 so we dont put space in front of the first group
         if (i > 1 && i%4==0) s += LIGHT_SPACING;
@@ -284,9 +279,9 @@ void draw_lights( void )
         // draw outline of lights
         glBegin(GL_LINE_LOOP);
         glColor3ub( 100, 100, 100 );
-        glVertex2f( x + s + i*LIGHT_SIZE        , y );                // BL
-        glVertex2f( x + s + i*LIGHT_SIZE        , y + LIGHT_SIZE );    // TL
-        glVertex2f( x + s + (i+1)*LIGHT_SIZE    , y + LIGHT_SIZE);     // TR
+        glVertex2f( x + s + i*LIGHT_SIZE        , y );                  // BL
+        glVertex2f( x + s + i*LIGHT_SIZE        , y + LIGHT_SIZE );     // TL
+        glVertex2f( x + s + (i+1)*LIGHT_SIZE    , y + LIGHT_SIZE);      // TR
         glVertex2f( x + s + (i+1)*LIGHT_SIZE    , y );
         glEnd();
 
@@ -295,12 +290,11 @@ void draw_lights( void )
         {
             glBegin(GL_QUADS);
             glColor3ub( 25, 0, 255 );
-            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + 5);                // BL
-            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + LIGHT_SIZE - 5);    // TL
-            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + LIGHT_SIZE - 5);     // TR
-            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + 5 );                // BR
+            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + 5);               // BL
+            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + LIGHT_SIZE - 5);  // TL
+            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + LIGHT_SIZE - 5);  // TR
+            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + 5 );              // BR
             glEnd();
-
         }
     }
 }
@@ -348,7 +342,7 @@ int draw_all(void)
             glColor3ub(100,100,255);
         else
             glColor3ub(100,100,100);
-        glVertex2f(0,                              HIST_SIZE*FFT_BIN_WIDTH + clip_mag);
+        glVertex2f(0,                           HIST_SIZE*FFT_BIN_WIDTH + clip_mag);
         glVertex2f(FFT_NUM_BINS*FFT_BIN_WIDTH,  HIST_SIZE*FFT_BIN_WIDTH + clip_mag);
         glEnd();
     }
@@ -372,7 +366,6 @@ int draw_all(void)
     glColor3ub(100,100,100);
     for (i=0; i < SAMPLE_SIZE; i++)
         glVertex2f(i*SCREEN_WIDTH/SAMPLE_SIZE, 25 + fft_input[i] / 1000);
-
     glEnd();
 
 
@@ -420,12 +413,10 @@ void service_keys(void)
 
 int handle_sdl_events(void)
 {
-
     while ( SDL_PollEvent( &event ) )
     {
         switch( event.type )
         {
-
             case SDL_VIDEORESIZE:
 
                 surface = SDL_SetVideoMode( event.resize.w,event.resize.h, SCREEN_BPP, videoFlags );
