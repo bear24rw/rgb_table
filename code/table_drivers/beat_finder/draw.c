@@ -7,6 +7,7 @@
 #include <SDL.h>
 
 #include "main.h"
+#include "fft.h"
 #include "draw.h"
 #include "table.h"
 
@@ -31,13 +32,11 @@ SDL_Surface *surface;
 
 unsigned char done = FALSE;
 
-int i,j,k = 0;
-
 void init_gl(void)
 {
-    glShadeModel( GL_SMOOTH );         
+    glShadeModel(GL_SMOOTH);         
 
-    glClearColor( 0,0,0, 0.0f );     
+    glClearColor(0,0,0, 0.0f);     
 
     gluOrtho2D(0.0, SCREEN_WIDTH, 0.0, SCREEN_HEIGHT);
 
@@ -54,18 +53,18 @@ int init_sdl(void)
     const SDL_VideoInfo *videoInfo;
 
     /* initialize SDL */
-    if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+    if (SDL_Init(SDL_INIT_VIDEO ) < 0 )
     {
-        fprintf( stderr, "Video initialization failed: %s\n", SDL_GetError( ) );
+        fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError() );
         return 1;
     }
 
     /* Fetch the video info */
-    videoInfo = SDL_GetVideoInfo( );
+    videoInfo = SDL_GetVideoInfo();
 
-    if ( !videoInfo )
+    if (!videoInfo )
     {
-        fprintf( stderr, "Video query failed: %s\n", SDL_GetError( ) );
+        fprintf(stderr, "Video query failed: %s\n", SDL_GetError() );
         return 1;
     }
 
@@ -76,49 +75,49 @@ int init_sdl(void)
     videoFlags |= SDL_RESIZABLE;       /* Enable window resizing */
 
     /* This checks to see if surfaces can be stored in memory */
-    if ( videoInfo->hw_available )
+    if (videoInfo->hw_available )
         videoFlags |= SDL_HWSURFACE;
     else
         videoFlags |= SDL_SWSURFACE;
 
     /* This checks if hardware blits can be done */
-    if ( videoInfo->blit_hw ) videoFlags |= SDL_HWACCEL;
+    if (videoInfo->blit_hw ) videoFlags |= SDL_HWACCEL;
 
     /* Sets up OpenGL double buffering */
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1 );
 
     /* get a SDL surface */
-    surface = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
+    surface = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags );
 
     /* Verify there is a surface */
-    if ( !surface )
+    if (!surface )
     {
-        fprintf( stderr,  "Video mode set failed: %s\n", SDL_GetError( ) );
+        fprintf(stderr,  "Video mode set failed: %s\n", SDL_GetError() );
         return 1;
     }
 
-    resize_window( SCREEN_WIDTH, SCREEN_HEIGHT );
+    resize_window(SCREEN_WIDTH, SCREEN_HEIGHT );
 
     return 0;
 }
 
 
 // reset viewport after a window resize
-void resize_window( int width, int height )
+void resize_window(int width, int height )
 {
-    glViewport( 0, 0, ( GLint )width, ( GLint )height );
+    glViewport(0, 0, (GLint )width, (GLint )height );
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity( );
+    glMatrixMode(GL_PROJECTION );
+    glLoadIdentity();
 
     gluOrtho2D(0.0, SCREEN_WIDTH, 0.0, SCREEN_HEIGHT);
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity( );
+    glMatrixMode(GL_MODELVIEW );
+    glLoadIdentity();
 }
 
 
-void draw_table( int off_x, int off_y)
+void draw_table(int off_x, int off_y)
 {
     off_x = (SCREEN_WIDTH / 2) - ((TABLE_WIDTH * CELL_SIZE) / 2);
     off_y = SCREEN_HEIGHT - TABLE_HEIGHT*CELL_SIZE - 4*LIGHT_SIZE;
@@ -130,38 +129,38 @@ void draw_table( int off_x, int off_y)
         {
             // draw outline of cell
             glBegin(GL_LINE_LOOP);
-            glColor3ub( 100, 100, 100 );
-            glVertex2f( off_x + x*CELL_SIZE         , off_y + y*CELL_SIZE );     // BL
-            glVertex2f( off_x + x*CELL_SIZE         , off_y + (y+1)*CELL_SIZE ); // TL
-            glVertex2f( off_x + (x+1)*CELL_SIZE     , off_y + (y+1)*CELL_SIZE ); // TR
-            glVertex2f( off_x + (x+1)*CELL_SIZE     , off_y + y*CELL_SIZE );     // BR
+            glColor3ub(100, 100, 100 );
+            glVertex2f(off_x + x*CELL_SIZE         , off_y + y*CELL_SIZE );     // BL
+            glVertex2f(off_x + x*CELL_SIZE         , off_y + (y+1)*CELL_SIZE ); // TL
+            glVertex2f(off_x + (x+1)*CELL_SIZE     , off_y + (y+1)*CELL_SIZE ); // TR
+            glVertex2f(off_x + (x+1)*CELL_SIZE     , off_y + y*CELL_SIZE );     // BR
             glEnd();
 
             // draw cell color
             glBegin(GL_QUADS);
-            glColor3ub( table[x][y].r, table[x][y].g, table[x][y].b );
-            glVertex2f( off_x + x*CELL_SIZE + 1     , off_y + y*CELL_SIZE + 1);     // BL
-            glVertex2f( off_x + x*CELL_SIZE + 1     , off_y + (y+1)*CELL_SIZE -1);  // TL
-            glVertex2f( off_x + (x+1)*CELL_SIZE - 1 , off_y + (y+1)*CELL_SIZE -1);  // TR
-            glVertex2f( off_x + (x+1)*CELL_SIZE - 1 , off_y + y*CELL_SIZE + 1);     // BR
+            glColor3ub(table[x][y].r, table[x][y].g, table[x][y].b );
+            glVertex2f(off_x + x*CELL_SIZE + 1     , off_y + y*CELL_SIZE + 1);     // BL
+            glVertex2f(off_x + x*CELL_SIZE + 1     , off_y + (y+1)*CELL_SIZE -1);  // TL
+            glVertex2f(off_x + (x+1)*CELL_SIZE - 1 , off_y + (y+1)*CELL_SIZE -1);  // TR
+            glVertex2f(off_x + (x+1)*CELL_SIZE - 1 , off_y + y*CELL_SIZE + 1);     // BR
             glEnd();
         }
     }
 }
 
 // draw the fft bins on a real vs imaginary plot
-void draw_real_img_plot( float off_x, float off_y)
+void draw_real_img_plot(float off_x, float off_y)
 {
     glBegin(GL_POINTS);
 
     for (i=0; i<FFT_NUM_BINS; i++)
     {
         if (fft_bin[i].triggered)
-            glColor3ub( 255, 255, 255);
+            glColor3ub(255, 255, 255);
         else
-            glColor3ub( 255, 0, 255);
+            glColor3ub(255, 0, 255);
 
-        glVertex2f( off_x + fft_out[i][0]/5000, off_y + fft_out[i][1]/5000);
+        glVertex2f(off_x + fft_out[i][0]/5000, off_y + fft_out[i][1]/5000);
     }
 
     glEnd();
@@ -171,16 +170,16 @@ void draw_real_img_plot( float off_x, float off_y)
 void draw_mag(int i, float height, float off_x, float off_y )
 {
     if (fft_bin[i].triggered)
-        glColor3ub( 255, 255, 255);
+        glColor3ub(255, 255, 255);
     else
-        glColor3ub( 255, 0, 0 );
+        glColor3ub(255, 0, 0 );
 
     glBegin(GL_LINE_LOOP);
 
-    glVertex2f( off_x + i*FFT_BIN_WIDTH         , off_y );           // BL
-    glVertex2f( off_x + i*FFT_BIN_WIDTH         , off_y + height );  // TL
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH     , off_y + height);   // TR
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH     , off_y );
+    glVertex2f(off_x + i*FFT_BIN_WIDTH         , off_y );           // BL
+    glVertex2f(off_x + i*FFT_BIN_WIDTH         , off_y + height );  // TL
+    glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH     , off_y + height );  // TR
+    glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH     , off_y );
 
     glEnd();
 }
@@ -189,9 +188,9 @@ void draw_mag(int i, float height, float off_x, float off_y )
 void draw_mag_hist_avg(int i, float off_x, float off_y)
 {
     glBegin(GL_LINES);
-    glColor3ub( 0, 255, 0 );
-    glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + fft_bin[i].hist_avg );
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH    , off_y + fft_bin[i].hist_avg );
+    glColor3ub(0, 255, 0 );
+    glVertex2f(off_x + i*FFT_BIN_WIDTH     , off_y + fft_bin[i].hist_avg );
+    glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH    , off_y + fft_bin[i].hist_avg );
     glEnd();
 }
 
@@ -199,9 +198,9 @@ void draw_mag_hist_avg(int i, float off_x, float off_y)
 void draw_mag_hist_var(int i, float off_x, float off_y)
 {
     glBegin(GL_LINES);
-    glColor3ub( 255, 255, 0);
-    glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + fft_bin[i].hist_std );
-    glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH    , off_y + fft_bin[i].hist_std );
+    glColor3ub(255, 255, 0);
+    glVertex2f(off_x + i*FFT_BIN_WIDTH     , off_y + fft_bin[i].hist_std );
+    glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH    , off_y + fft_bin[i].hist_std );
     glEnd();
 }
 
@@ -219,19 +218,19 @@ void draw_mag_hist(int i, float off_x, float off_y)
         // if this was a beat, color it white
         if (fft_bin[i].trigger_hist[k]) {r = 255; g = 255; b = 255;}
 
-        glColor3ub( r, g, b );
+        glColor3ub(r, g, b );
 
-        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH , off_y + k*FFT_BIN_WIDTH );        // TL
-        glVertex2f( off_x + (i+1)*FFT_BIN_WIDTH , off_y + (k+1)*FFT_BIN_WIDTH );    // TR
-        glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + (k+1)*FFT_BIN_WIDTH );    // BR
-        glVertex2f( off_x + i*FFT_BIN_WIDTH     , off_y + k*FFT_BIN_WIDTH );        // BL 
+        glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH , off_y + k*FFT_BIN_WIDTH );        // TL
+        glVertex2f(off_x + (i+1)*FFT_BIN_WIDTH , off_y + (k+1)*FFT_BIN_WIDTH );    // TR
+        glVertex2f(off_x + i*FFT_BIN_WIDTH     , off_y + (k+1)*FFT_BIN_WIDTH );    // BR
+        glVertex2f(off_x + i*FFT_BIN_WIDTH     , off_y + k*FFT_BIN_WIDTH );        // BL 
     }
 
     glEnd();
 
     // draw bar at bottom of history
     glBegin(GL_LINES);
-    glColor3ub( 255, 0, 0 );
+    glColor3ub(255, 0, 0);
     glVertex2f(off_x, off_y);
     glVertex2f(off_x + FFT_NUM_BINS*FFT_BIN_WIDTH, off_y);
     glEnd();
@@ -239,7 +238,7 @@ void draw_mag_hist(int i, float off_x, float off_y)
 
 // draws lines from the light boxes to the bin that it is currently assigned to
 // line fades according to decay time
-void draw_lines_to_lights( void )
+void draw_lines_to_lights(void)
 {
     double x = (SCREEN_WIDTH / 2) - ((NUM_LIGHTS * LIGHT_SIZE + (NUM_LIGHTS/4-1)*LIGHT_SPACING) / 2);
     double y = SCREEN_HEIGHT - 2*LIGHT_SIZE;
@@ -255,15 +254,15 @@ void draw_lines_to_lights( void )
         {
             glBegin(GL_LINES);
             unsigned char c = 255 * lights[i].decay / LIGHT_DECAY;
-            glColor3ub( c, c, c );
-            glVertex2f( x + s + i*LIGHT_SIZE+(LIGHT_SIZE/2)                          , y ); // BL
-            glVertex2f( xpos + lights[i].last_bin*FFT_BIN_WIDTH+(FFT_BIN_WIDTH/2)    , ypos + HIST_SIZE*FFT_BIN_WIDTH);
+            glColor3ub(c, c, c);
+            glVertex2f(x + s + i*LIGHT_SIZE+(LIGHT_SIZE/2)                          , y ); // BL
+            glVertex2f(xpos + lights[i].last_bin*FFT_BIN_WIDTH+(FFT_BIN_WIDTH/2)    , ypos + HIST_SIZE*FFT_BIN_WIDTH);
             glEnd();
         }
     }
 }
 
-void draw_lights( void )
+void draw_lights(void)
 {
     double x = (SCREEN_WIDTH / 2) - ((NUM_LIGHTS * LIGHT_SIZE + (NUM_LIGHTS/4-1)*LIGHT_SPACING) / 2);
     double y = SCREEN_HEIGHT - 2*LIGHT_SIZE;
@@ -278,22 +277,22 @@ void draw_lights( void )
 
         // draw outline of lights
         glBegin(GL_LINE_LOOP);
-        glColor3ub( 100, 100, 100 );
-        glVertex2f( x + s + i*LIGHT_SIZE        , y );                  // BL
-        glVertex2f( x + s + i*LIGHT_SIZE        , y + LIGHT_SIZE );     // TL
-        glVertex2f( x + s + (i+1)*LIGHT_SIZE    , y + LIGHT_SIZE);      // TR
-        glVertex2f( x + s + (i+1)*LIGHT_SIZE    , y );
+        glColor3ub(100, 100, 100 );
+        glVertex2f(x + s + i*LIGHT_SIZE        , y );                  // BL
+        glVertex2f(x + s + i*LIGHT_SIZE        , y + LIGHT_SIZE );     // TL
+        glVertex2f(x + s + (i+1)*LIGHT_SIZE    , y + LIGHT_SIZE );      // TR
+        glVertex2f(x + s + (i+1)*LIGHT_SIZE    , y );
         glEnd();
 
         // draw light if its on
         if (lights[i].state)
         {
             glBegin(GL_QUADS);
-            glColor3ub( 25, 0, 255 );
-            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + 5);               // BL
-            glVertex2f( x + s + i*LIGHT_SIZE + 5        , y + LIGHT_SIZE - 5);  // TL
-            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + LIGHT_SIZE - 5);  // TR
-            glVertex2f( x + s + (i+1)*LIGHT_SIZE - 5    , y + 5 );              // BR
+            glColor3ub(25, 0, 255);
+            glVertex2f(x + s + i*LIGHT_SIZE + 5        , y + 5);               // BL
+            glVertex2f(x + s + i*LIGHT_SIZE + 5        , y + LIGHT_SIZE - 5);  // TL
+            glVertex2f(x + s + (i+1)*LIGHT_SIZE - 5    , y + LIGHT_SIZE - 5);  // TR
+            glVertex2f(x + s + (i+1)*LIGHT_SIZE - 5    , y + 5);              // BR
             glEnd();
         }
     }
@@ -301,12 +300,12 @@ void draw_lights( void )
 
 int draw_all(void)
 {
-    glClear( GL_COLOR_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity( );
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-    glTranslatef( xpos, ypos, zpos);
+    glTranslatef(xpos, ypos, zpos);
 
     // draw each bins mag, hist, hist_avg, hist_var
     for (i=0; i< FFT_NUM_BINS; i++)
@@ -321,16 +320,16 @@ int draw_all(void)
     /*
     // draw average var line
     glBegin(GL_LINES);
-    glColor3ub( 255, 255, 0);
-    glVertex2f( 0                , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
-    glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH    , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
+    glColor3ub(255, 255, 0);
+    glVertex2f(0                , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
+    glVertex2f(FFT_NUM_BINS*FFT_BIN_WIDTH    , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_std_avg);
     glEnd();
 
     // draw history average average line
     glBegin(GL_LINES);
-    glColor3ub( 0, 255, 0);
-    glVertex2f( 0                 , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
-    glVertex2f( FFT_NUM_BINS*FFT_BIN_WIDTH    , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
+    glColor3ub(0, 255, 0);
+    glVertex2f(0                 , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
+    glVertex2f(FFT_NUM_BINS*FFT_BIN_WIDTH    , HIST_SIZE*FFT_BIN_WIDTH + fft_global_hist_avg);
     glEnd();
     */
 
@@ -348,7 +347,7 @@ int draw_all(void)
     }
 
     // reset the view so we draw lights in center
-    glTranslatef( -xpos, -ypos, -zpos);
+    glTranslatef(-xpos, -ypos, -zpos);
 
     // draw lights
     draw_lights();
@@ -359,7 +358,7 @@ int draw_all(void)
     draw_table(0,0);
 
     // draw the real vs img plot
-    //draw_real_img_plot( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    //draw_real_img_plot(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
     // draw raw signal
     glBegin(GL_LINE_STRIP);
@@ -386,7 +385,7 @@ int draw_all(void)
 
 
     // flip it to the screen
-    SDL_GL_SwapBuffers( );
+    SDL_GL_SwapBuffers();
 
     return TRUE;
 }
@@ -398,7 +397,7 @@ void service_keys(void)
 
     if (keys[SDLK_ESCAPE])    done=TRUE;
 
-    if (keys[SDLK_F1])    SDL_WM_ToggleFullScreen( surface );
+    if (keys[SDLK_F1])    SDL_WM_ToggleFullScreen(surface);
 
     if (keys[SDLK_d])    xpos += (float)movement;
     if (keys[SDLK_a])    xpos -= (float)movement;
@@ -413,24 +412,24 @@ void service_keys(void)
 
 int handle_sdl_events(void)
 {
-    while ( SDL_PollEvent( &event ) )
+    while (SDL_PollEvent(&event))
     {
-        switch( event.type )
+        switch(event.type)
         {
             case SDL_VIDEORESIZE:
 
-                surface = SDL_SetVideoMode( event.resize.w,event.resize.h, SCREEN_BPP, videoFlags );
+                surface = SDL_SetVideoMode(event.resize.w,event.resize.h, SCREEN_BPP, videoFlags);
 
-                if ( !surface )
+                if (!surface)
                 {
-                    fprintf( stderr, "Could not get a surface after resize: %s\n", SDL_GetError( ) );
+                    fprintf(stderr, "Could not get a surface after resize: %s\n", SDL_GetError() );
                     return 1;
                 }
 
                 SCREEN_WIDTH = event.resize.w;
                 SCREEN_HEIGHT = event.resize.h;
 
-                resize_window( event.resize.w, event.resize.h );
+                resize_window(event.resize.w, event.resize.h );
 
                 break;
 

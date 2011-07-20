@@ -102,7 +102,7 @@ void init_lights(void)
     }
 }
 
-void detect_beats( void )
+void detect_beats(void)
 {
     for (i = 0; i < FFT_NUM_BINS; i++)
     {
@@ -128,7 +128,7 @@ void detect_beats( void )
 }
 
 
-void assign_lights( void )
+void assign_lights(void)
 {
     int pulse_count = 0;
     int center_of_pulse = 0;
@@ -289,7 +289,6 @@ int main( int argc, char **argv )
 
     init_lights();
     init_table();
-    clear_table();
 
     while ( !done )
     {

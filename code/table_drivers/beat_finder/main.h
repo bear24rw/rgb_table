@@ -72,7 +72,6 @@ extern struct light lights[NUM_LIGHTS];
 extern int lights_last_bin[NUM_LIGHTS];    
 extern int lights_time_decay[NUM_LIGHTS];
 
-extern fftw_complex *fft_out;
-extern double *fft_input;
+extern int i,j,k;
 
 #endif
