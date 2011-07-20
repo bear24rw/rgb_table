@@ -31,7 +31,7 @@ SDL_Surface *surface;
 
 unsigned char done = FALSE;
 
-int i,j,k;
+int i,j,k = 0;
 
 void init_gl(void)
 {

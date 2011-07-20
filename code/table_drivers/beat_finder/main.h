@@ -27,9 +27,6 @@
 #define LIGHT_SIZE      50              // pixel size
 #define LIGHT_SPACING   20              // pixels between groups
 
-
-#define FIFO_FILE        "/tmp/mpd.fifo"
-
 extern double clip_mag;
 extern double clip_mag_decay;
 extern char clipped;        
