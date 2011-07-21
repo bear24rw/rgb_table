@@ -8,7 +8,7 @@
 struct pixel table[TABLE_WIDTH][TABLE_HEIGHT];
 struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
-struct pulse table_pulses[NUM_LIGHTS];
+struct pulse pulses[NUM_LIGHTS];
 
 int i,x,y;
 
@@ -17,9 +17,10 @@ void init_table(void)
     // randomize all the pulses
     for (i=0; i<NUM_LIGHTS; i++)
     {
-        table_pulses[i].x = rand() % TABLE_WIDTH;
-        table_pulses[i].y = rand() % TABLE_HEIGHT; 
-        table_pulses[i].decay = 0;
+        pulses[i].x = rand() % TABLE_WIDTH;
+        pulses[i].y = rand() % TABLE_HEIGHT; 
+        pulses[i].decay = 0;
+        pulses[i].radius = PULSE_RADIUS;
     }
 
     clear_table();
@@ -53,62 +54,56 @@ void clear_tmp_table(void)
 }
 
 
-void draw_circle(int x, int y, int radius, int decay, int r, int g, int b)
+void draw_pulse(int i)
 {
     clear_tmp_table();
 
-    double rr;
-    for (rr=0; rr<=radius; rr+=0.1)
+    double r;
+    double angle;
+
+    int radius = PULSE_RADIUS;
+    
+    if (clipped) radius *= PULSE_CLIP_SCALE;
+
+    for (r=0; r<=radius; r+=0.1)
     {
-        double angle;
         for (angle=0; angle<6.28318; angle+=0.05)
         {
-            int xx = floor(x + cos(angle)*rr);
-            int yy = floor(y + sin(angle)*rr);
+            int x = floor(pulses[i].x + cos(angle)*r);
+            int y = floor(pulses[i].y + sin(angle)*r);
 
-            if (xx > TABLE_WIDTH - 1) continue;
-            if (yy > TABLE_HEIGHT - 1) continue;
-            if (xx < 0) continue;
-            if (yy < 0) continue;
+            if (x > TABLE_WIDTH - 1) continue;
+            if (y > TABLE_HEIGHT - 1) continue;
+            if (x < 0) continue;
+            if (y < 0) continue;
 
-            tmp_table[xx][yy].r = ( r - 255.0 * (float)rr / (float)radius - 255.0 * (1.0 - (float)decay / (float)LIGHT_DECAY )) ;
-            tmp_table[xx][yy].g = ( g - 255.0 * (float)rr / (float)radius - 255.0 * (1.0 - (float)decay / (float)LIGHT_DECAY )) ;
-            tmp_table[xx][yy].b = ( b - 255.0 * (float)rr / (float)radius - 255.0 * (1.0 - (float)decay / (float)LIGHT_DECAY )) ;
+            double decay_percent = (pulses[i].decay / LIGHT_DECAY);
+            double radius_percent = (r / radius);
 
-            if (tmp_table[xx][yy].r < 0) tmp_table[xx][yy].r = 0;
-            if (tmp_table[xx][yy].g < 0) tmp_table[xx][yy].g = 0;
-            if (tmp_table[xx][yy].b < 0) tmp_table[xx][yy].b = 0;
-        }
-    }
+            int r = ( pulses[i].r * radius_percent * decay_percent);
+            int g = ( pulses[i].g * radius_percent * decay_percent);
+            int b = ( pulses[i].b * radius_percent * decay_percent);
 
-    for (x=0; x<TABLE_WIDTH; x++)
-    {
-        for (y=0; y<TABLE_HEIGHT; y++)
-        {
-            table[x][y].r += tmp_table[x][y].r;
-            table[x][y].g += tmp_table[x][y].g;
-            table[x][y].b += tmp_table[x][y].b;
-
-            if (table[x][y].r > 255) table[x][y].r = 255;
-            if (table[x][y].g > 255) table[x][y].g = 255;
-            if (table[x][y].b > 255) table[x][y].b = 255;
-        }
-    }
-}
-
-void increase_table_bg(float percent)
-{
-    for (x=0; x<TABLE_WIDTH; x++)
-    {
-        for (y=0; y<TABLE_HEIGHT; y++)
-        {
-            table[x][y].r *= percent;
-            table[x][y].b *= percent;
-            table[x][y].g *= percent;
+            if (r < 0) r = 0;
+            if (g < 0) g = 0;
+            if (b < 0) b = 0;
+            if (r > 254) r = 254;
+            if (g > 254) g = 254;
+            if (b > 254) b = 254;
             
-            if (table[x][y].r > 255) table[x][y].r = 255;
-            if (table[x][y].g > 255) table[x][y].g = 255;
-            if (table[x][y].b > 255) table[x][y].b = 255;
+            tmp_table[x][y].r = r;
+            tmp_table[x][y].g = g;
+            tmp_table[x][y].b = b;
+        }
+    }
+
+    for (x=0; x<TABLE_WIDTH; x++)
+    {
+        for (y=0; y<TABLE_HEIGHT; y++)
+        {
+            if (table[x][y].r + tmp_table[x][y].r > 254) table[x][y].r = 254; else table[x][y].r += tmp_table[x][y].r;
+            if (table[x][y].g + tmp_table[x][y].g > 254) table[x][y].g = 254; else table[x][y].g += tmp_table[x][y].g;
+            if (table[x][y].b + tmp_table[x][y].b > 254) table[x][y].b = 254; else table[x][y].b += tmp_table[x][y].b;
         }
     }
 }
@@ -116,26 +111,29 @@ void increase_table_bg(float percent)
 // draw the history buffer as the table background
 void table_draw_hist_bg(void)
 {
-    int x,y;
-
     for (x=0; x<TABLE_WIDTH; x++)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
         {
-            float r = (255*fft_bin[i].hist[y+(HIST_SIZE-TABLE_HEIGHT)])/fft_global_hist_mag_max;
-            float b = (255*fft_bin[i].hist_std)/(fft_global_hist_std_max);
+            float r = (254*fft_bin[i].hist[y+(HIST_SIZE-TABLE_HEIGHT)])/fft_global_hist_mag_max;
+            float b = (254*fft_bin[i].hist_std)/(fft_global_hist_std_max);
             float g = 0;
             
             // if this was a beat, color it white
             //if (fft_bin_triggered_hist[x][y+(HIST_SIZE-TABLE_HEIGHT)]) {r = 255; g = 255; b = 255;}
 
-            table[x][y].r = r * 0.1;
-            table[x][y].b = b * 0.1;
-            table[x][y].g = g * 0.1;
+            // scale intensity down
+            r *= 0.1;
+            g *= 0.1;
+            b *= 0.1;
 
-            if (table[x][y].r > 255) table[x][y].r = 255;
-            if (table[x][y].g > 255) table[x][y].g = 255;
-            if (table[x][y].b > 255) table[x][y].b = 255;
+            if (r > 254) r = 254;
+            if (g > 254) g = 254;
+            if (b > 254) b = 254;
+
+            table[x][y].r = r;
+            table[x][y].b = b;
+            table[x][y].g = g;
         }
     }
 }
@@ -146,14 +144,9 @@ void assign_cells(void)
 
     //table_draw_hist_bg();
 
-    //if (clipped) increase_table_bg(1.5);
-   
-    int radius = 4;
-    if (clipped) radius *= 1.5;
-
     for (i=0; i<NUM_LIGHTS; i++)
     {
-        draw_circle(table_pulses[i].x, table_pulses[i].y, radius, table_pulses[i].decay, table_pulses[i].r, table_pulses[i].g, table_pulses[i].b);
+        draw_pulse(i);
     }
 }
 

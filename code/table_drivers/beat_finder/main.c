@@ -182,7 +182,7 @@ void assign_lights(void)
                 lights[i].found_pulse = 1;
 
                 // reset the decay
-                table_pulses[i].decay = LIGHT_DECAY;
+                pulses[i].decay = LIGHT_DECAY;
                 lights[i].decay = LIGHT_DECAY;
 
                 // turn light on
@@ -211,13 +211,13 @@ void assign_lights(void)
                 lights[i].found_pulse = 1;
 
                 // calculate new position and color
-                table_pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
-                table_pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
+                pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
+                pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
                 int color = (int)(((float)rand() * 360.0 / (RAND_MAX - 1.0)) + 1.0);
-                hsv_to_rgb(color, 255, 255, &table_pulses[i].r, &table_pulses[i].g, &table_pulses[i].b);
+                hsv_to_rgb(color, 255, 255, &pulses[i].r, &pulses[i].g, &pulses[i].b);
 
                 // reset the decay
-                table_pulses[i].decay = LIGHT_DECAY;
+                pulses[i].decay = LIGHT_DECAY;
                 lights[i].decay = LIGHT_DECAY;
 
                 // turn light on
@@ -252,8 +252,8 @@ void assign_lights(void)
             lights[i].decay -= 1;
 
         // decrement the decay for this pulse
-        table_pulses[i].decay -= 1;
-        if (table_pulses[i].decay < 0) table_pulses[i].decay = 0;
+        pulses[i].decay -= 1;
+        if (pulses[i].decay < 0) pulses[i].decay = 0;
 
         // when there is a heavy bass line we want to turn on as many lights as possible
         // also when there is a heavy bass line we will probably be clipping it.
