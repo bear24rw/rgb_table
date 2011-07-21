@@ -397,17 +397,19 @@ void service_keys(void)
 
     if (keys[SDLK_ESCAPE])    done=TRUE;
 
-    if (keys[SDLK_F1])    SDL_WM_ToggleFullScreen(surface);
+    if (keys[SDLK_F1])  SDL_WM_ToggleFullScreen(surface);
 
-    if (keys[SDLK_d])    xpos += (float)movement;
-    if (keys[SDLK_a])    xpos -= (float)movement;
-    if (keys[SDLK_w])    ypos -= (float)movement;
-    if (keys[SDLK_s])    ypos += (float)movement;
+    if (keys[SDLK_d])   xpos += (float)movement;
+    if (keys[SDLK_a])   xpos -= (float)movement;
+    if (keys[SDLK_w])   ypos -= (float)movement;
+    if (keys[SDLK_s])   ypos += (float)movement;
 
-    if (keys[SDLK_o])    { MAG_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-    if (keys[SDLK_l])    { MAG_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-    if (keys[SDLK_i])    { VAR_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
-    if (keys[SDLK_k])    { VAR_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+    if (keys[SDLK_o])   { MAG_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+    if (keys[SDLK_l])   { MAG_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+    if (keys[SDLK_i])   { VAR_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+    if (keys[SDLK_k])   { VAR_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
+
+    if (keys[SDLK_c])   offset_circle = 1;
 }
 
 int handle_sdl_events(void)

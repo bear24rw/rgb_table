@@ -26,6 +26,8 @@ extern struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
 extern struct pulse pulses[NUM_LIGHTS];
 
+extern unsigned char offset_circle;
+
 void init_table(void);
 void clear_table(void);
 void clear_tmp_table(void);

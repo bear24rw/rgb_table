@@ -10,6 +10,8 @@ struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
 struct pulse pulses[NUM_LIGHTS];
 
+unsigned char offset_circle = 1;
+
 int i,x,y;
 
 void init_table(void)
@@ -69,8 +71,16 @@ void draw_pulse(int i)
     {
         for (angle=0; angle<6.28318; angle+=0.05)
         {
-            int x = floor(pulses[i].x + cos(angle)*r);
-            int y = floor(pulses[i].y + sin(angle)*r);
+            if (offset_circle)
+            {
+                int x = floor(pulses[i].x + 0.5 + cos(angle)*r);
+                int y = floor(pulses[i].y + 0.5 + sin(angle)*r);
+            }
+            else
+            {
+                int x = floor(pulses[i].x + cos(angle)*r);
+                int y = floor(pulses[i].y + sin(angle)*r);
+            }
 
             if (x > TABLE_WIDTH - 1) continue;
             if (y > TABLE_HEIGHT - 1) continue;
