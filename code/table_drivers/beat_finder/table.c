@@ -78,7 +78,8 @@ void draw_pulse(int i)
             if (y < 0) continue;
 
             double decay_percent = (pulses[i].decay / LIGHT_DECAY);
-            double radius_percent = (r / radius);
+            //double radius_percent = (r / radius);
+            double radius_percent = log(-1*r+radius+1)/log(radius+1);
 
             int r = ( pulses[i].r * radius_percent * decay_percent);
             int g = ( pulses[i].g * radius_percent * decay_percent);
