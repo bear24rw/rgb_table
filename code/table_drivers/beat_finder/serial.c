@@ -38,23 +38,22 @@ int init_serial( void )
 
 int send_serial( void )
 {
-    unsigned char data = 0;
+    static int x, y = 0;
 
-    if (lights[0].state) data += 1;
-    if (lights[2].state) data += 2;
-    if (lights[4].state) data += 4;
-    if (lights[6].state) data += 8;
+    static unsigned char start_byte = 255;
 
-    if (lights[1].state) data += 16;
-    if (lights[3].state) data += 32;
-    if (lights[5].state) data += 64;
-    if (lights[7].state) data += 128;
+    // send start byte
+    if (write(serial_file, &start_byte, 1) != 1) return 1;
 
-    int n = write(serial_file, &data, 1);
-    if (n < 0)
+    // send table data
+    for (y=0; y<TABLE_HEIGHT; y++)
     {
-        printf("write() failed!\n");
-        return 1;    
+        for (x=0; x<TABLE_WIDTH; x++)
+        {
+            if (write(serial_file, &table[x][y].r, 1) != 1) return 1;
+            if (write(serial_file, &table[x][y].g, 1) != 1) return 1;
+            if (write(serial_file, &table[x][y].b, 1) != 1) return 1;
+        }
     }
 
     return 0;

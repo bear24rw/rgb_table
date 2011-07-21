@@ -7,7 +7,7 @@
 
 struct pixel
 {
-    int r,g,b;
+    unsigned char r,g,b;
     int h,s,v;
 }; 
 
