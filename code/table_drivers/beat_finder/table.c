@@ -91,10 +91,14 @@ void draw_pulse(int i)
             if (r > 254) r = 254;
             if (g > 254) g = 254;
             if (b > 254) b = 254;
-            
-            tmp_table[x][y].r = r;
-            tmp_table[x][y].g = g;
-            tmp_table[x][y].b = b;
+
+            // only change the color we haven't assigned a color already
+            if (tmp_table[x][y].r == 0 && tmp_table[x][y].g == 0 && tmp_table[x][y].b == 0)
+            {
+                tmp_table[x][y].r = r;
+                tmp_table[x][y].g = g;
+                tmp_table[x][y].b = b;
+            }
         }
     }
 
