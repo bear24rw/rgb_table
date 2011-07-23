@@ -11,6 +11,8 @@ struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 struct pulse pulses[NUM_LIGHTS];
 
 unsigned char offset_circle = 1;
+unsigned char first_assigned = 1;
+unsigned char pulse_pulses = 1;
 
 int i,x,y;
 
@@ -65,21 +67,23 @@ void draw_pulse(int i)
 
     int radius = PULSE_RADIUS;
     
-    if (clipped) radius *= PULSE_CLIP_SCALE;
+    if (clipped & pulse_pulses) radius *= PULSE_CLIP_SCALE;
 
     for (r=0; r<=radius; r+=0.1)
     {
         for (angle=0; angle<6.28318; angle+=0.05)
         {
+            int x,y;
+
             if (offset_circle)
             {
-                int x = floor(pulses[i].x + 0.5 + cos(angle)*r);
-                int y = floor(pulses[i].y + 0.5 + sin(angle)*r);
+                x = floor(pulses[i].x + 0.5 + cos(angle)*r);
+                y = floor(pulses[i].y + 0.5 + sin(angle)*r);
             }
             else
             {
-                int x = floor(pulses[i].x + cos(angle)*r);
-                int y = floor(pulses[i].y + sin(angle)*r);
+                x = floor(pulses[i].x + cos(angle)*r);
+                y = floor(pulses[i].y + sin(angle)*r);
             }
 
             if (x > TABLE_WIDTH - 1) continue;
@@ -87,10 +91,10 @@ void draw_pulse(int i)
             if (x < 0) continue;
             if (y < 0) continue;
 
-            double decay_percent = (pulses[i].decay / LIGHT_DECAY);
-            //double radius_percent = (r / radius);
-            double radius_percent = log(-1*r+radius+1)/log(radius+1);
-
+            double decay_percent = ((float)pulses[i].decay / (float)LIGHT_DECAY);
+            double radius_percent = 1.0 - ((float)r / (float)radius);
+            //double radius_percent = log(-1*r+radius+1)/log(radius+1);
+            
             int r = ( pulses[i].r * radius_percent * decay_percent);
             int g = ( pulses[i].g * radius_percent * decay_percent);
             int b = ( pulses[i].b * radius_percent * decay_percent);
@@ -103,11 +107,17 @@ void draw_pulse(int i)
             if (b > 254) b = 254;
 
             // only change the color we haven't assigned a color already
-            if (tmp_table[x][y].r == 0 && tmp_table[x][y].g == 0 && tmp_table[x][y].b == 0)
+            if (first_assigned && tmp_table[x][y].r == 0 && tmp_table[x][y].g == 0 && tmp_table[x][y].b == 0)
             {
-                tmp_table[x][y].r = r;
-                tmp_table[x][y].g = g;
-                tmp_table[x][y].b = b;
+              tmp_table[x][y].r = r;
+              tmp_table[x][y].g = g;
+              tmp_table[x][y].b = b;
+            }
+            else if (!first_assigned)
+            {
+              tmp_table[x][y].r = r;
+              tmp_table[x][y].g = g;
+              tmp_table[x][y].b = b;
             }
         }
     }

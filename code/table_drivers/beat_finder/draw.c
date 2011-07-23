@@ -409,7 +409,10 @@ void service_keys(void)
     if (keys[SDLK_i])   { VAR_TRIGGER += 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
     if (keys[SDLK_k])   { VAR_TRIGGER -= 0.01; printf("Mag: %f\tVar: %f\n", MAG_TRIGGER, VAR_TRIGGER); }
 
-    if (keys[SDLK_c])   offset_circle = 1;
+    if (keys[SDLK_c])   { offset_circle ^= 1; printf("Offset_circle: %d\n", offset_circle); }
+    if (keys[SDLK_f])   { first_assigned ^= 1; printf("First_assigned: %d\n", first_assigned); }
+    if (keys[SDLK_p])   { pulse_pulses ^= 1; printf("Pulse_pulses: %d\n", pulse_pulses);}
+
 }
 
 int handle_sdl_events(void)

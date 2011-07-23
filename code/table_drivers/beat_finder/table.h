@@ -5,7 +5,7 @@
 #define TABLE_HEIGHT        8
 #define CELL_SIZE           25
 
-#define PULSE_RADIUS        4
+#define PULSE_RADIUS        3
 #define PULSE_CLIP_SCALE    1.5
 
 struct pixel
@@ -27,6 +27,8 @@ extern struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 extern struct pulse pulses[NUM_LIGHTS];
 
 extern unsigned char offset_circle;
+extern unsigned char first_assigned;
+extern unsigned char pulse_pulses;
 
 void init_table(void);
 void clear_table(void);
