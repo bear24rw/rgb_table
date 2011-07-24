@@ -5,7 +5,7 @@
 #define TABLE_HEIGHT        8
 #define CELL_SIZE           25
 
-#define PULSE_RADIUS        3
+#define PULSE_RADIUS        2
 #define PULSE_CLIP_SCALE    1.5
 
 struct pixel

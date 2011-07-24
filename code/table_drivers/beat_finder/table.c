@@ -134,7 +134,7 @@ void draw_pulse(int i)
 }
 
 // draw the history buffer as the table background
-void table_draw_hist_bg(void)
+void table_draw_hist_bg(double perc)
 {
     for (x=0; x<TABLE_WIDTH; x++)
     {
@@ -148,9 +148,9 @@ void table_draw_hist_bg(void)
             //if (fft_bin_triggered_hist[x][y+(HIST_SIZE-TABLE_HEIGHT)]) {r = 255; g = 255; b = 255;}
 
             // scale intensity down
-            r *= 0.1;
-            g *= 0.1;
-            b *= 0.1;
+            r *= perc;
+            g *= perc;
+            b *= perc;
 
             if (r > 254) r = 254;
             if (g > 254) g = 254;
@@ -167,11 +167,13 @@ void assign_cells(void)
 {
     clear_table();
 
-    //table_draw_hist_bg();
+    //table_draw_hist_bg(1.0);
 
     for (i=0; i<NUM_LIGHTS; i++)
     {
         draw_pulse(i);
     }
+
+
 }
 

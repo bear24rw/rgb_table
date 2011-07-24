@@ -123,7 +123,7 @@ void draw_table(int off_x, int off_y)
     off_y = SCREEN_HEIGHT - TABLE_HEIGHT*CELL_SIZE - 4*LIGHT_SIZE;
 
     int x,y = 0;
-    for (x=0; x<TABLE_WIDTH; x++)
+    for (x=TABLE_WIDTH-1; x>-1; x--)
     {
         for (y=0; y<TABLE_HEIGHT; y++)
         {

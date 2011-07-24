@@ -309,6 +309,10 @@ interrupt (USCIAB0RX_VECTOR) uart_rx(void)
 
     rx_byte = UCA0RXBUF;
 
+    // debug echo
+    while (!(IFG2&UCA0TXIFG));
+    UCA0TXBUF = rx_byte;
+
     // check if we recieved a start byte
     if (rx_byte == 0xFF)
     {
