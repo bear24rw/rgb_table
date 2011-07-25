@@ -50,10 +50,11 @@ int send_serial( void )
     {
         for (x=0; x<TABLE_WIDTH; x++)
         {
-            if (table[x][y].r == 255) printf("ERROR\n");
-            if (table[x][y].g == 255) printf("ERROR\n");
-            if (table[x][y].b == 255) printf("ERROR\n");
+            // make sure we don't try to send a start byte 
+            if (table[x][y].r > 254 || table[x][y].g > 254 || table[x][y].b > 254) 
+                printf("[ERROR] Found start byte in data array!\n");
 
+            // half the rows are wired backwards
             if (y>=TABLE_HEIGHT/2)
             {
                 if (write(serial_file, &table[x][y].b, 1) != 1) return 1;
@@ -66,7 +67,6 @@ int send_serial( void )
                 if (write(serial_file, &table[TABLE_WIDTH-x-1][y].g, 1) != 1) return 1;
                 if (write(serial_file, &table[TABLE_WIDTH-x-1][y].r, 1) != 1) return 1;
             }
-
         }
     }
 
