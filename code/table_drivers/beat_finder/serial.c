@@ -57,15 +57,15 @@ int send_serial( void )
             // half the rows are wired backwards
             if (y>=TABLE_HEIGHT/2)
             {
-                if (write(serial_file, &table[x][y].b, 1) != 1) return 1;
-                if (write(serial_file, &table[x][y].g, 1) != 1) return 1;
                 if (write(serial_file, &table[x][y].r, 1) != 1) return 1;
+                if (write(serial_file, &table[x][y].g, 1) != 1) return 1;
+                if (write(serial_file, &table[x][y].b, 1) != 1) return 1;
             }
             else
             {
-                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].b, 1) != 1) return 1;
-                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].g, 1) != 1) return 1;
                 if (write(serial_file, &table[TABLE_WIDTH-x-1][y].r, 1) != 1) return 1;
+                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].g, 1) != 1) return 1;
+                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].b, 1) != 1) return 1;
             }
         }
     }

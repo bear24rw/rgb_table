@@ -1,9 +1,9 @@
 #include <msp430.h>
 #include <legacymsp430.h>
 
-#define RED_FET BIT5
+#define RED_FET BIT4
 #define GRN_FET BIT3
-#define BLU_FET BIT4
+#define BLU_FET BIT5
 
 #define XLAT    BIT2
 #define SIN     BIT1
