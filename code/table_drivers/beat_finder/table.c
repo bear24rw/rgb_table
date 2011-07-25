@@ -10,7 +10,7 @@ struct pixel tmp_table[TABLE_WIDTH][TABLE_HEIGHT];
 
 struct pulse pulses[NUM_LIGHTS];
 
-unsigned char offset_circle = 1;
+unsigned char offset_circle = 0;
 unsigned char first_assigned = 1;
 unsigned char pulse_pulses = 1;
 
