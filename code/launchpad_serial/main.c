@@ -306,27 +306,26 @@ interrupt (USCIAB0RX_VECTOR) uart_rx(void)
 {
     static unsigned int rx_pointer = 0;
     static unsigned char rx_byte = 0;
+    static unsigned char rx_error = 0;
 
     rx_byte = UCA0RXBUF;
-
-    // debug echo
-    while (!(IFG2&UCA0TXIFG));
-    UCA0TXBUF = rx_byte;
 
     // check if we recieved a start byte
     if (rx_byte == 0xFF)
     {
+        // reset the array pointer
         rx_pointer = 0;
+
+        // clear any errors
+        rx_error = 0;
     }
-    else
+    else if (!rx_error)
     {
         table[rx_pointer] = UCA0RXBUF; 
         rx_pointer++;
 
         // sanity check, we should never hit end of the array
         if (rx_pointer == NUM_LEDS)
-        {
-            rx_pointer = 0;
-        }
+            rx_error = 1;
     }
 }
