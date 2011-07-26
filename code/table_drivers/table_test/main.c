@@ -186,13 +186,13 @@ void fade(void)
     int fade=0;
     for (fade=0; fade<255; fade++)
     {
-        set_all(fade,0,0);
-        sleep(.1);
+        set_all(fade,fade,fade);
+        sleep(1);
     }
     for (fade=254; fade>-1; fade--)
     {
-        set_all(fade, 0,0);
-        sleep(.1);
+        set_all(fade, fade,fade);
+        sleep(1);
     }
 }
 
@@ -211,7 +211,7 @@ int main(void)
 
     while (1)
     {
-        printf("Walk\n");
+  /*      printf("Walk\n");
         walk();
 
         printf("Set all red\n");
@@ -247,10 +247,11 @@ int main(void)
 
         printf("Loop rows\n");
         loop_rows();
-
+*/
         printf("Fade\n");
         clear();
         fade();
+        continue;
 
         printf("Clear\n");
         clear();
