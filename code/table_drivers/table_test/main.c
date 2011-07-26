@@ -115,6 +115,26 @@ void clear(void)
     send();
 }
 
+void walk(void)
+{
+    clear();
+
+    int x,y;
+    for (y=0; y<HEIGHT; y++)
+    {
+        for (x=0; x<WIDTH; x++)
+        {
+            table[x][y][0] = 254;
+            table[x][y][1] = 254;
+            table[x][y][2] = 254;
+
+            send();
+
+            sleep(1);
+        }
+    }
+}
+
 void loop_rows(void)
 {
     clear();
@@ -191,6 +211,9 @@ int main(void)
 
     while (1)
     {
+        printf("Walk\n");
+        walk();
+
         printf("Set all red\n");
         set_all(254,0,0);
         sleep(SLEEP);
