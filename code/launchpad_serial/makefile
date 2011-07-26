@@ -23,6 +23,9 @@ ${NAME}.lst: ${NAME}.elf
 program: all
 	mspdebug rf2500 "prog ${NAME}.elf"
 
+run: all
+	mspdebug rf2500 "run"
+
 clean:
 	rm -f ${NAME}.elf ${NAME}.a43 ${NAME}.lst ${OBJECTS}
 
