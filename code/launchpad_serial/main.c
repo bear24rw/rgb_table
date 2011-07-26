@@ -321,7 +321,7 @@ interrupt (USCIAB0RX_VECTOR) uart_rx(void)
     }
     else if (!rx_error)
     {
-        table[rx_pointer] = UCA0RXBUF; 
+        table[rx_pointer] = rx_byte; 
         rx_pointer++;
 
         // sanity check, we should never hit end of the array

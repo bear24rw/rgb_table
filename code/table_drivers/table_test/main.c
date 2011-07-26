@@ -130,7 +130,7 @@ void walk(void)
 
             send();
 
-            sleep(1);
+            sleep(.25);
         }
     }
 }
@@ -211,7 +211,10 @@ int main(void)
 
     while (1)
     {
-  /*      printf("Walk\n");
+        set_all(10,10,10);
+        continue;
+
+        printf("Walk\n");
         walk();
 
         printf("Set all red\n");
@@ -247,11 +250,10 @@ int main(void)
 
         printf("Loop rows\n");
         loop_rows();
-*/
+
         printf("Fade\n");
         clear();
         fade();
-        continue;
 
         printf("Clear\n");
         clear();
