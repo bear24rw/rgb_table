@@ -10,6 +10,7 @@ struct ftdi_context ftdic;
 #define HEIGHT  8
 
 unsigned char table[WIDTH][HEIGHT][3];
+unsigned char flat_table[WIDTH*HEIGHT*3];
 
 void send(void);
 
@@ -48,7 +49,7 @@ int init_serial(void)
 
 int send_serial(unsigned char data)
 {
-    ftdi_write_data(&ftdic, &data, 1);
+    ftdi_write_data(&ftdic, flat_table, WIDTH*HEIGHT*3);
     return 1;
 }
 
@@ -57,8 +58,10 @@ void send(void)
     int x,y;
 
     // send out start byte
-    send_serial(0xff);
+    unsigned char start_byte = 0xff;    
+    ftdi_write_data(&ftdic, &start_byte, 1);
 
+    int count = 0;
     // send out table data
     for (y=0; y<HEIGHT; y++)
     {
@@ -66,18 +69,20 @@ void send(void)
         {
             if (y>=HEIGHT/2)
             {
-                send_serial(table[x][y][0]);
-                send_serial(table[x][y][1]);
-                send_serial(table[x][y][2]);
+                flat_table[count] = table[x][y][0]; count++;
+                flat_table[count] = table[x][y][1]; count++;
+                flat_table[count] = table[x][y][2]; count++;
             }
             else
             {
-                send_serial(table[WIDTH-x-1][y][0]);
-                send_serial(table[WIDTH-x-1][y][1]);
-                send_serial(table[WIDTH-x-1][y][2]);
+                flat_table[count] = table[WIDTH-x-1][y][0]; count++;
+                flat_table[count] = table[WIDTH-x-1][y][1]; count++;
+                flat_table[count] = table[WIDTH-x-1][y][2]; count++;
             }
         }
     }
+
+    send_serial(0);
 
 }
 
@@ -151,7 +156,7 @@ void loop_rows(void)
 
         send();
 
-        sleep(1);
+        sleep(.5);
     }
 }
 
@@ -173,7 +178,7 @@ void loop_cols(void)
 
         send();
 
-        sleep(1);
+        sleep(.5);
     }
 }
 
@@ -185,12 +190,12 @@ void fade(void)
     for (fade=0; fade<255; fade++)
     {
         set_all(fade,fade,fade);
-        sleep(1);
+        sleep(.2);
     }
     for (fade=254; fade>-1; fade--)
     {
         set_all(fade, fade,fade);
-        sleep(1);
+        sleep(.2);
     }
 }
 
@@ -210,7 +215,7 @@ int main(void)
     while (1)
     {
         set_all(10,10,10);
-        continue;
+        sleep(2);
 
         printf("Walk\n");
         walk();
