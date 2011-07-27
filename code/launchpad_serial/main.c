@@ -72,6 +72,8 @@ static inline void init_dc()
 
     // switch back to GS mode
     P1OUT &= ~VPRG;
+
+    need_extra_sclk = 1;
 }
 
 static inline void next_color()
@@ -118,15 +120,6 @@ static inline void refresh_table()
     // if were waiting for a latch dont update again
     if (need_xlat == 0)
     {
-
-        if (need_extra_sclk)
-        {
-            P2OUT |= SCLK;
-            P2OUT &= ~SCLK;
-        }
-        else
-            need_extra_sclk = 1;
-
         // shift in all the values for the current color
         for (i=0; i<NUM_LEDS; i+=3)
         {
@@ -292,6 +285,13 @@ interrupt (TIMER0_A0_VECTOR) Timer_A(void)
         P2OUT &= ~XLAT;
         need_xlat = 0;
         next_color();
+        
+        if (need_extra_sclk)
+        {
+            P2OUT |= SCLK;
+            P2OUT &= ~SCLK;
+            need_extra_sclk = 0;
+        }
     }
 
     // enable the GS counter
