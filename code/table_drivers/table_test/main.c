@@ -189,16 +189,69 @@ void fade(void)
     int fade=0;
     for (fade=0; fade<255; fade++)
     {
+        printf("%d\n", fade);
         set_all(fade,fade,fade);
         sleep(.2);
     }
     for (fade=254; fade>-1; fade--)
     {
+        printf("%d\n", fade);
         set_all(fade, fade,fade);
         sleep(.2);
     }
 }
+void set_row(int y, int r, int g, int b)
+{
+    printf("%d\n", g);
+    int x;
+    for (x=0; x<WIDTH; x++)
+    {
+        table[x][y][0] = r;
+        table[x][y][1] = g;
+        table[x][y][2] = b;
+    }
+}
 
+void row_gradient_green(void)
+{
+
+    int y;
+    for (y=0; y<HEIGHT; y++)
+    {
+        //set_row(y,0, 0,(int)(255.0*(float)y/(float)HEIGHT));
+          //set_row(y, 0,(int)(255.0*(float)y/(float)HEIGHT),0);
+        //set_row(y, (int)(255.0*(float)y/(float)HEIGHT),0,0);
+        set_row(y, (int)(255.0*(float)y/(float)HEIGHT),(int)(255.0*(float)y/(float)HEIGHT),0);
+    }
+
+    send();
+}
+
+void set_col(int x, int r, int g, int b)
+{
+    printf("%d\n", g);
+    int y;
+    for (y=0; y<HEIGHT; y++)
+    {
+        table[x][y][0] = r;
+        table[x][y][1] = g;
+        table[x][y][2] = b;
+    }
+}
+
+void col_gradient_green(void)
+{
+
+    int x;
+    for (x=0; x<WIDTH; x++)
+    {
+        set_col(x,0, 0,(int)(255.0*(float)x/(float)WIDTH));
+        //set_col(x, 0,(int)(255.0*(float)x/(float)WIDTH),0);
+        //set_col(x, (int)(255.0*(float)x/(float)WIDTH),0,0);
+    }
+
+    send();
+}
 
 int main(void)
 {
@@ -214,6 +267,12 @@ int main(void)
 
     while (1)
     {
+
+
+        row_gradient_green();
+        sleep(1);
+        continue;
+
         set_all(10,10,10);
         sleep(2);
 
