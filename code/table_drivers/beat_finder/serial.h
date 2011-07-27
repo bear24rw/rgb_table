@@ -1,8 +1,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#define SERIAL_DEV      "/dev/ttyUSB0"
-#define SERIAL_BAUD     B500000
+#define BAUD     115200
 
 int init_serial(void);
 int send_serial(void);
