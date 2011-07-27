@@ -57,8 +57,8 @@ static inline void init_dc()
     // set everything to 0xFF
     P2OUT |= SIN;
     
-    // DC register is 96 bits, we have 8 chips, extra 5 just in case
-    for (i=0; i<(96*8+5); i++)
+    // DC register is 96 bits, we have 8 chips
+    for (i=0; i<(96*8); i++)
     {
         P2OUT |= SCLK;
         P2OUT &= ~SCLK;
