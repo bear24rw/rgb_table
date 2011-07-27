@@ -197,7 +197,7 @@ void fade(void)
 
 int main(void)
 {
-    if (! init_serial())
+    if (init_serial())
     {
         printf("Could not open serial port!\n");
         return 1;
