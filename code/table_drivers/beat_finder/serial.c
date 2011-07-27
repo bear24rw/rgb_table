@@ -1,38 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <errno.h> 
+#include <ftdi.h>
 
 #include "main.h"
 #include "draw.h"
 #include "table.h"
 #include "serial.h"
 
-int serial_file;
+struct ftdi_context ftdic;
+
+unsigned char flat_table[TABLE_HEIGHT*TABLE_WIDTH*3];
 
 int init_serial( void )
 {
-    serial_file = open(SERIAL_DEV, O_RDWR | O_NOCTTY | O_NDELAY);
-    if (serial_file == -1)
-    {
-        printf("Could not open serial port\n");
+    if (ftdi_init(&ftdic) < 0)
+    {   
+        fprintf(stderr, "ftdi_init failed\n");
         return 1;
-    }
+    }  
 
-    fcntl(serial_file, F_SETFL, 0);
+    ftdi_set_interface(&ftdic, INTERFACE_ANY);
 
-    struct termios options;
+    int f = ftdi_usb_open(&ftdic, 0x0403, 0x6001);
+    if (f < 0)
+    {   
+        fprintf(stderr, "unable to open ftdi device: %d (%s)\n", f, ftdi_get_error_string(&ftdic));
+        return 1;
+    }   
 
-    tcgetattr(serial_file, &options);
-
-    cfsetispeed(&options, SERIAL_BAUD);
-    cfsetospeed(&options, SERIAL_BAUD);
-    options.c_cflag |= (CLOCAL | CREAD);
-
-    tcsetattr(serial_file, TCSANOW, &options);
-
+    f = ftdi_set_baudrate(&ftdic, BAUD);
+    if (f < 0)
+    {   
+        fprintf(stderr, "unable to set baudrate: %d (%s)\n", f, ftdi_get_error_string(&ftdic));
+        return 1;  
+    }   
+            
     return 0;
 }
 
@@ -41,11 +43,12 @@ int send_serial( void )
     static int x, y = 0;
 
     static unsigned char start_byte = 255;
+    ftdi_write_data(&ftdic, &start_byte, 1);
 
-    // send start byte
-    if (write(serial_file, &start_byte, 1) != 1) return 1;
+    // index into the flat_table array
+    int index = 0;
 
-    // send table data
+    // flatten table into a 1D array 
     for (y=0; y<TABLE_HEIGHT; y++)
     {
         for (x=0; x<TABLE_WIDTH; x++)
@@ -57,18 +60,21 @@ int send_serial( void )
             // half the rows are wired backwards
             if (y>=TABLE_HEIGHT/2)
             {
-                if (write(serial_file, &table[x][y].r, 1) != 1) return 1;
-                if (write(serial_file, &table[x][y].g, 1) != 1) return 1;
-                if (write(serial_file, &table[x][y].b, 1) != 1) return 1;
+                flat_table[index] = table[x][y].r; index++;
+                flat_table[index] = table[x][y].g; index++;
+                flat_table[index] = table[x][y].b; index++;
             }
             else
             {
-                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].r, 1) != 1) return 1;
-                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].g, 1) != 1) return 1;
-                if (write(serial_file, &table[TABLE_WIDTH-x-1][y].b, 1) != 1) return 1;
+                flat_table[index] = table[TABLE_WIDTH-x-1][y].r; index++;
+                flat_table[index] = table[TABLE_WIDTH-x-1][y].g; index++;
+                flat_table[index] = table[TABLE_WIDTH-x-1][y].b; index++;
             }
         }
     }
+
+    // send the flat array
+    ftdi_write_data(&ftdic, flat_table, TABLE_WIDTH*TABLE_HEIGHT*3);
 
     return 0;
 }
