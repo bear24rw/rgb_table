@@ -3,7 +3,7 @@
 #include <math.h>
 #include <ftdi.h>
 
-#define BAUD 115200
+#define BAUD 500000
 struct ftdi_context ftdic;
 
 #define WIDTH   16
@@ -268,10 +268,9 @@ int main(void)
     while (1)
     {
 
-
         row_gradient_green();
         sleep(1);
-        continue;
+        //continue;
 
         set_all(10,10,10);
         sleep(2);
