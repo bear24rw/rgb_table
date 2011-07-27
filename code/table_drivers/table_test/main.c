@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <errno.h> 
+#include <ftdi.h>
 
-#define SERIAL_DEV		"/dev/ttyUSB0"
-#define SERIAL_BAUD		B500000
-int serial_file;
+#define BAUD 115200
+struct ftdi_context ftdic;
 
 #define WIDTH   16
 #define HEIGHT  8
@@ -19,38 +15,40 @@ void send(void);
 
 int init_serial(void)
 {
-    serial_file = open(SERIAL_DEV, O_RDWR | O_NOCTTY | O_NDELAY);
-    if (serial_file == -1)
+    int vid = 0x0403;
+    int pid = 0x6001;
+    int interface = INTERFACE_ANY;
+    int f;
+
+    if (ftdi_init(&ftdic) < 0)
     {
-        printf("Could not open serial port\n");
-        return 0;
+        fprintf(stderr, "ftdi_init failed\n");
+        return 1;
     }
 
-    fcntl(serial_file, F_SETFL, 0);
+    ftdi_set_interface(&ftdic, interface);
 
-    struct termios options;
+    f = ftdi_usb_open(&ftdic, vid, pid);
+    if (f < 0)
+    {
+        fprintf(stderr, "unable to open ftdi device: %d (%s)\n", f, ftdi_get_error_string(&ftdic));
+        return 1;
+    }
 
-    tcgetattr(serial_file, &options);
+    // Set baudrate
+    f = ftdi_set_baudrate(&ftdic, BAUD);
+    if (f < 0)
+    {
+        fprintf(stderr, "unable to set baudrate: %d (%s)\n", f, ftdi_get_error_string(&ftdic));
+        return 1; 
+    }
 
-    cfsetispeed(&options, SERIAL_BAUD);
-    cfsetospeed(&options, SERIAL_BAUD);
-    options.c_cflag |= (CLOCAL | CREAD);
-
-    tcsetattr(serial_file, TCSANOW, &options);
-
-    return 1;
+    return 0;
 }
 
 int send_serial(unsigned char data)
 {
-    int n = write(serial_file, &data, 1);
-
-    if (n < 0)
-    {
-        printf("write() failed!\n");
-        return 0;
-    }
-
+    ftdi_write_data(&ftdic, &data, 1);
     return 1;
 }
 
@@ -199,7 +197,7 @@ void fade(void)
 
 int main(void)
 {
-    if (! init_serial())
+    if (init_serial())
     {
         printf("Could not open serial port!\n");
         return 1;
