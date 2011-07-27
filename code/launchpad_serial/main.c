@@ -212,14 +212,16 @@ int main(void)
     P1DIR &= ~BIT1;
 
     UCA0CTL1 |= UCSSEL_2;       // SMCLK
-    /*
+  
     UCA0BR0 = 0x18;             // 12MHz 500000 baud
     UCA0BR1 = 0x00;             // 12MHz 500000 baud
     UCA0MCTL = 0x00;            // 12Mhz 500000 baud
-    */
+   
+    /*
     UCA0BR0 = 0x68;             // 12MHz 115200 baud
     UCA0BR1 = 0x00;             // 12MHz 115200 baud
     UCA0MCTL = 0x04;            // 12Mhz 115200 baud
+    */
 
     UCA0CTL1 &= ~UCSWRST;       // initialize USCI state machine
     IE2 |= UCA0RXIE;            // enable USCI_A0 RX interrupt
