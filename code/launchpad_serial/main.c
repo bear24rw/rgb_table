@@ -199,6 +199,8 @@ int main(void)
     BCSCTL1 = CALBC1_12MHZ;
     DCOCTL = CALDCO_12MHZ;
 
+    P1DIR |= BIT5 | BIT6 | BIT7;
+
     //
     // UART
     //
@@ -324,14 +326,19 @@ interrupt (USCIAB0RX_VECTOR) uart_rx(void)
 
         // clear any errors
         rx_error = 0;
+
+        P1OUT ^= BIT5;
     }
     else if (!rx_error)
     {
         table[rx_pointer] = rx_byte; 
         rx_pointer++;
 
+
         // sanity check, we should never hit end of the array
         if (rx_pointer == NUM_LEDS)
-            rx_error = 1;
+        {    rx_error = 1;
+            P1OUT ^= BIT6;
+        }
     }
 }
