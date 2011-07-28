@@ -114,5 +114,4 @@ while not done:
             
             table.data[x][y] = hsv_to_rgb(grid[x][y])
 
-    print table.data
     table.send()
