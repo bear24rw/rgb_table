@@ -268,6 +268,10 @@ int main(void)
     while (1)
     {
 
+        set_all(15,15,15);
+        sleep(1);
+        continue;
+
         row_gradient_green();
         sleep(1);
         //continue;
