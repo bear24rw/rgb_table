@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2 -lGL -lGLU -lm -lSDL_image -lfftw3 -lftdi `sdl-config --cflags --libs`
+CFLAGS = -Wall -O2 -lGL -lGLU -lm -lSDL_image -lfftw3 -lftdi `pkg-config ftgl freetype2 --cflags --libs` `sdl-config --cflags --libs` -I/usr/include/freetype2/
 OBJECTS = main.o fft.o draw.o table.o serial.o
 
 main : $(OBJECTS)
