@@ -40,57 +40,34 @@ struct light lights[NUM_LIGHTS];
 
 int i,j,k = 0;
 
-void hsv_to_rgb( int h, int s, int v, int *r, int *g, int *b )
+void hsv_to_rgb( int h, float s, float v, int *r, int *g, int *b)
 {
-    int f;
-    long p, q, t;
+    float rr, gg, bb;
 
-    if( s == 0 )
-    {
-        *r = *g = *b = v;
-        return;
-    }
+    float c = v * s;
+    float hh = h / 60.0f;
+    float x = c * (1 - fabs(fmod(hh,2.0f) - 1));
 
-    f = ((h%60)*255)/60;
-    h /= 60;
+    if (hh >= 0 && hh < 1)      { rr = c; gg = x; bb = 0; }
+    else if (hh >= 1 && hh < 2) { rr = x; gg = c; bb = 0; }
+    else if (hh >= 2 && hh < 3) { rr = 0; gg = c; bb = x; }
+    else if (hh >= 3 && hh < 4) { rr = 0; gg = x; bb = c; }
+    else if (hh >= 4 && hh < 5) { rr = x; gg = 0; bb = c; }
+    else if (hh >= 5 && hh < 6) { rr = c; gg = 0; bb = x; }
+    else { rr = 0; gg = 0; bb = 0; }
 
-    p = (v * (256 - s))/256;
-    q = (v * ( 256 - (s * f)/256 ))/256;
-    t = (v * ( 256 - (s * ( 256 - f ))/256))/256;
+    float m = v - c;
 
-    switch( h ) {
-        case 0:
-            *r = v;
-            *g = t;
-            *b = p;
-            break;
-        case 1:
-            *r = q;
-            *g = v;
-            *b = p;
-            break;
-        case 2:
-            *r = p;
-            *g = v;
-            *b = t;
-            break;
-        case 3:
-            *r = p;
-            *g = q;
-            *b = v;
-            break;
-        case 4:
-            *r = t;
-            *g = p;
-            *b = v;
-            break;
-        default:
-            *r = v;
-            *g = p;
-            *b = q;
-            break;
-    }
+    rr += m;
+    gg += m;
+    bb += m;
+
+    *r = (int)(rr * 255.0f);
+    *g = (int)(gg * 255.0f);
+    *b = (int)(bb * 255.0f);
+    
 }
+
 
 void init_lights(void)
 {
@@ -214,7 +191,7 @@ void assign_lights(void)
                 pulses[i].x = (int)(((float)rand() * (float)(TABLE_WIDTH-2) / (RAND_MAX - 1.0)) + 1.0)+1;
                 pulses[i].y = (int)(((float)rand() * (float)(TABLE_HEIGHT-2) / (RAND_MAX - 1.0)) + 1.0)+1;
                 int color = (int)(((float)rand() * 360.0 / (RAND_MAX - 1.0)) + 1.0);
-                hsv_to_rgb(color, 255, 255, &pulses[i].r, &pulses[i].g, &pulses[i].b);
+                hsv_to_rgb(color, 1,1, &pulses[i].r, &pulses[i].g, &pulses[i].b);
 
                 // reset the decay
                 pulses[i].decay = LIGHT_DECAY;

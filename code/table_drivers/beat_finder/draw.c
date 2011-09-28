@@ -369,20 +369,18 @@ int draw_all(void)
 
 
     // draw test gradient
-    /*
-       for (i=0; i<360; i++)
-       {
-       int r,g,b;
-       HSVtoRGB(&r,&g,&b,i,255,255);
-       glBegin(GL_LINE_STRIP);
-       glColor3ub(r,g,b);
-       glVertex2f(i,200);
-       glVertex2f(i,300);
-       glEnd();
-       }
-       */
-
-
+    /* 
+    for (i=0; i<360; i++)
+    {
+        int r,g,b;
+        hsv_to_rgb(i,1,1,&r,&g,&b);
+        glBegin(GL_LINE_STRIP);
+        glColor3ub(r,g,b);
+        glVertex2f(i,200);
+        glVertex2f(i,300);
+        glEnd();
+    }
+    */
 
     // flip it to the screen
     SDL_GL_SwapBuffers();

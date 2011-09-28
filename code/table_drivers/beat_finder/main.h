@@ -74,4 +74,7 @@ extern int lights_time_decay[NUM_LIGHTS];
 
 extern int i,j,k;
 
+
+void hsv_to_rgb( int h, float s, float v, int *r, int *g, int *b);
+
 #endif
