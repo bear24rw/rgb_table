@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 
 #include <GL/gl.h>
@@ -365,6 +366,12 @@ int draw_all(void)
     glColor3ub(100,100,100);
     for (i=0; i < SAMPLE_SIZE; i++)
         glVertex2f(i*SCREEN_WIDTH/SAMPLE_SIZE, 25 + fft_input[i] / 1000);
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+    glColor3ub(100,100,100);
+    for (i=0; i < 900; i++)
+        glVertex2f(i*SCREEN_WIDTH/900, 200 + (float)tmp_buffer[i]/100);
     glEnd();
 
 

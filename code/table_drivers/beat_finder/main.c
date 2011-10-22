@@ -258,6 +258,9 @@ int main( int argc, char **argv )
     printf("init_fft()\n");
     if ( init_fft() ) return 1;
 
+    printf("init_alsa()\n");
+    if ( init_alsa() ) return 1;
+
     if ( use_serial )
     {
         printf("init_serial()\n");

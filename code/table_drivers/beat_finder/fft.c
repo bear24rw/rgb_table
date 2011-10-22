@@ -1,16 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include <fftw3.h>
+#include <alsa/asoundlib.h>
 
 #include "main.h"
 #include "fft.h"
+
+FILE *fifo_file;
 
 double *fft_input;
 fftw_complex *fft_out;
 fftw_plan fft_plan;
 
-FILE *fifo_file;
+snd_pcm_t *handle;
+snd_pcm_hw_params_t *params;
+snd_pcm_uframes_t frames = 1024;
+
+int rc;
+int size;
+unsigned int rate = 44100;
+int dir = 0;
+unsigned char *buffer; // 2 bytes / sample, 2 channels
+
+uint16_t tmp_buffer[940];
 
 int init_fft(void)
 {
@@ -20,16 +34,149 @@ int init_fft(void)
 
     fifo_file = fopen(FIFO_FILE, "rb");
     if (!fifo_file)
-    {
-        printf("Cannot open file!\n");
         return 1;
-    }
 
     return 0;
 }
 
+int init_alsa(void)
+{
+    // open PCM device for recording
+    rc = snd_pcm_open(&handle, "default", SND_PCM_STREAM_CAPTURE, 0);
+
+    if (rc < 0)
+    {
+        printf("Unable to open pcm device: %s\n", snd_strerror(rc));
+        return 1;
+    }
+
+    // allocate a hardware parameter object
+    snd_pcm_hw_params_alloca(&params);
+
+    if (rc < 0)
+    {
+        printf("Unable to configure this PCM device\n");
+        return 1;
+    }
+
+    // fill it with default values
+    snd_pcm_hw_params_any(handle, params);
+
+    //
+    // set the desired hardware parameters
+    //
+
+    // interleaved mode
+    rc = snd_pcm_hw_params_set_access(handle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
+    if (rc < 0)
+    {
+        printf("Unable to set interleaved mode\n");
+        return 1;
+    }
+
+    // signed 16-bit little-endian format
+    rc = snd_pcm_hw_params_set_format(handle, params, SND_PCM_FORMAT_U16_BE);
+    if (rc < 0)
+    {
+        printf("Unable to set format\n");
+        return 1;
+    }
+
+    // two channel stereo
+    rc = snd_pcm_hw_params_set_channels(handle, params, 2);
+    if (rc < 0)
+    {
+        printf("Unable to set to two channel stereo\n");
+        return 1;
+    }
+
+    // 44100 bits/second sample rate
+    unsigned int exact_rate = rate;
+    rc = snd_pcm_hw_params_set_rate_near(handle, params, &exact_rate, 0);
+    if (rc < 0)
+    {
+        printf("Error setting rate\n");
+        return 1;
+    }
+
+    if (rate != exact_rate)
+    {
+        printf("%d Hz not supported. Using %d Hz instead", rate, exact_rate);
+    }
+
+    // set period size to 32 frames
+    rc = snd_pcm_hw_params_set_period_size_near(handle, params, &frames, &dir);
+    if (rc < 0)
+    {
+        printf("Error setting period size\n");
+        return 1;
+    }
+
+    // write the parameters to the driver
+    rc = snd_pcm_hw_params(handle, params);
+    if (rc < 0)
+    {
+        printf("Unable to set hw parameters: %s\n", snd_strerror(rc));
+        return 1;
+    }
+
+    size = frames * 4; // 2 bytes / sample, 2 channels
+    buffer = (unsigned char *) malloc(size);
+
+    printf("Frames: %d\n", (int)frames);
+    printf("Allocating buffer of size: %d\n", size);
+
+    snd_pcm_hw_params_get_period_time(params, &rate, &dir);
+
+    return 0;
+
+}
+
+void get_alsa(void)
+{
+    rc = snd_pcm_readi(handle, buffer, frames);
+
+    if (rc == -EPIPE)
+    {
+        printf("Overrun occurred\n");
+        snd_pcm_prepare(handle);
+    }
+    else if (rc < 0)
+    {
+        printf("Error from read: %s\n", snd_strerror(rc));
+    }
+    else if (rc != (int)frames)
+    {
+        printf("Short read. Only read %d frames, expected %d\n", rc, (int)frames);
+    }
+    else if (rc == (int)frames)
+    {
+        //printf("GREAT! Found %d frames\n", rc);
+
+        int frame = 0;
+        for (frame=0; frame<rc; frame++)
+        {
+            int left = (buffer[frame*4+0] << 8) | buffer[frame*4+1];
+            int right = (buffer[frame*4+2] << 8) | buffer[frame*4+3];
+
+            tmp_buffer[frame] = (left + right) / 2;
+            //tmp_buffer[frame] = (buffer[frame*4+0] << 8) | (buffer[frame*4+1]);
+            //tmp_buffer[frame] = (buffer[frame*4+2] << 8) | (buffer[frame*4+3]);
+            //tmp_buffer[frame] /= 2.0;
+
+            //printf("%x %x = %u | %x\n", buffer[frame*4+0], buffer[frame*4+1], tmp_buffer[frame], tmp_buffer[frame]);
+            //printf("%x %x %d | %x %x %d\n", buffer[frame*4+0], buffer[frame*4+1], left, buffer[frame*4+2], buffer[frame*4+3], right);
+            
+        }
+    }
+
+}
+
 void get_samples_do_fft(void)
 {
+
+    get_alsa();
+
     // read in PCM 44100:16:1
     static int16_t buf[SAMPLE_SIZE];
 
