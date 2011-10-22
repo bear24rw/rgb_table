@@ -12,6 +12,7 @@ extern fftw_plan fft_plan;
 extern uint16_t tmp_buffer[940];
 
 int init_fft(void);
+int init_alsa(void);
 void get_samples_do_fft(void);
 void copy_bins_to_old(void);
 void compute_magnitude(void);
